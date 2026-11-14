@@ -1565,18 +1565,111 @@
 
       <!-- Buyer Leads -->
       <div>
-        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Buyer Leads</span>
-        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-300 leading-relaxed min-h-[40px]" id="ap-buyer-leads">
-          No buyer leads recorded.
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-users text-blue-400"></i> Buyer Leads (Inquiries)
+          </span>
+          <button onclick="openAddBuyerModal(false)" class="text-xs text-blue-400 hover:underline font-medium">+ Add Buyer Lead</button>
+        </div>
+        <div class="space-y-2" id="ap-buyer-leads-container">
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic" id="ap-buyer-leads">
+            No buyer leads recorded.
+          </div>
         </div>
       </div>
 
       <!-- Buyer Leads w/signed NDA -->
       <div>
-        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Buyer Leads w/signed NDA</span>
-        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-300 leading-relaxed min-h-[40px]" id="ap-buyer-leads-nda">
-          No signed NDA buyer leads recorded.
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-file-contract text-emerald-400"></i> Buyer Leads w/ signed NDA
+          </span>
+          <button onclick="openAddBuyerModal(true)" class="text-xs text-emerald-400 hover:underline font-medium">+ Add NDA Buyer</button>
         </div>
+        <div class="space-y-2" id="ap-buyer-leads-nda-container">
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic" id="ap-buyer-leads-nda">
+            No signed NDA buyer leads recorded.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADD BUYER LEAD MODAL ==================== -->
+  <div id="add-buyer-modal" class="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-blue-400"></i> <span id="add-buyer-modal-title">Attach Buyer Lead</span>
+        </h3>
+        <button onclick="closeModal('add-buyer-modal')" class="text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Mode Selector: Choose Existing vs Create New -->
+      <div class="grid grid-cols-2 p-1 bg-slate-950 rounded-lg border border-slate-800 text-xs font-semibold">
+        <button id="btn-buyer-mode-existing" onclick="setBuyerLeadMode('existing')" class="py-1.5 rounded-md bg-blue-600 text-white transition">
+          <i class="fa-solid fa-user-check mr-1.5"></i> Existing Contact
+        </button>
+        <button id="btn-buyer-mode-new" onclick="setBuyerLeadMode('new')" class="py-1.5 rounded-md text-slate-400 hover:text-slate-200 transition">
+          <i class="fa-solid fa-plus mr-1.5"></i> Quick Create New
+        </button>
+      </div>
+
+      <input type="hidden" id="buyer-modal-account-id" value="" />
+
+      <!-- Section A: Existing Contact Picker -->
+      <div id="buyer-section-existing" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Select Buyer Contact *</label>
+          <select id="buyer-select-contact" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 font-medium">
+            <option value="">-- Choose Contact --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section B: New Contact Form -->
+      <div id="buyer-section-new" class="space-y-3 text-xs hidden">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">First Name *</label>
+            <input type="text" id="buyer-new-first-name" placeholder="First Name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Last Name *</label>
+            <input type="text" id="buyer-new-last-name" placeholder="Last Name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Phone Number</label>
+            <input type="tel" id="buyer-new-phone" placeholder="(555) 000-0000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Email Address</label>
+            <input type="email" id="buyer-new-email" placeholder="buyer@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Common Fields: Notes & NDA Checkbox -->
+      <div class="space-y-3 text-xs pt-1 border-t border-slate-800/80">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Buyer Notes / Financial Criteria</label>
+          <input type="text" id="buyer-lead-notes" placeholder="e.g. Budget $1.2M cash, requested CIM, toured shop on 11/12" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="buyer-lead-is-nda" class="rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer" />
+          <label for="buyer-lead-is-nda" class="font-semibold text-slate-200 cursor-pointer flex items-center gap-1.5">
+            <i class="fa-solid fa-file-signature text-emerald-400"></i> Mark as Signed NDA Lead
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
+        <button onclick="closeModal('add-buyer-modal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+        <button onclick="saveBuyerLeadRecord()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold">Attach Buyer Lead</button>
       </div>
     </div>
   </div>
@@ -2795,8 +2888,7 @@
       }
 
       renderAccountNotesList(account);
-      document.getElementById('ap-buyer-leads').innerText = account.buyer_leads || 'No buyer leads recorded.';
-      document.getElementById('ap-buyer-leads-nda').innerText = account.buyer_leads_nda || 'No signed NDA buyer leads recorded.';
+      renderAccountBuyerLeads(account);
 
       // Deals for this account
       const deals = db.deals.filter(d => d.business_account_id === accountId);
@@ -2874,6 +2966,360 @@
         entries.push({ timestamp: 'Note', text: raw });
       }
       return entries;
+    }
+
+    let currentBuyerModalIsNda = false;
+    let currentBuyerModalMode = 'existing'; // 'existing' or 'new'
+
+    function setBuyerLeadMode(mode) {
+      currentBuyerModalMode = mode;
+      const btnExisting = document.getElementById('btn-buyer-mode-existing');
+      const btnNew = document.getElementById('btn-buyer-mode-new');
+      const secExisting = document.getElementById('buyer-section-existing');
+      const secNew = document.getElementById('buyer-section-new');
+
+      if (mode === 'existing') {
+        btnExisting.className = 'py-1.5 rounded-md bg-blue-600 text-white transition';
+        btnNew.className = 'py-1.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        secExisting.classList.remove('hidden');
+        secNew.classList.add('hidden');
+      } else {
+        btnNew.className = 'py-1.5 rounded-md bg-blue-600 text-white transition';
+        btnExisting.className = 'py-1.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        secNew.classList.remove('hidden');
+        secExisting.classList.add('hidden');
+      }
+    }
+
+    function openAddBuyerModal(isNda) {
+      if (!currentProfileAccountId) return;
+      currentBuyerModalIsNda = !!isNda;
+      setBuyerLeadMode('existing');
+
+      document.getElementById('buyer-modal-account-id').value = currentProfileAccountId;
+      document.getElementById('add-buyer-modal-title').innerText = isNda ? 'Attach Signed NDA Buyer Lead' : 'Attach Buyer Lead (Inquiry)';
+      document.getElementById('buyer-lead-is-nda').checked = !!isNda;
+      document.getElementById('buyer-lead-notes').value = '';
+      document.getElementById('buyer-new-first-name').value = '';
+      document.getElementById('buyer-new-last-name').value = '';
+      document.getElementById('buyer-new-phone').value = '';
+      document.getElementById('buyer-new-email').value = '';
+
+      // Populate Contacts Dropdown
+      const selectEl = document.getElementById('buyer-select-contact');
+      if (selectEl) {
+        const sorted = [...(db.contacts || [])].sort((a,b) => `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`));
+        selectEl.innerHTML = '<option value="">-- Choose Existing Contact --</option>' + sorted.map(c => {
+          const tags = Array.isArray(c.tags) ? c.tags.join(', ') : (c.tags || '');
+          const label = `${c.first_name || ''} ${c.last_name || ''}`.trim() + (tags ? ` (${tags})` : (c.title ? ` (${c.title})` : ''));
+          return `<option value="${c.id}">${escapeHtml(label)}</option>`;
+        }).join('');
+      }
+
+      openModal('add-buyer-modal');
+    }
+
+    function parseBuyerLeadsArray(rawStr) {
+      if (!rawStr || !rawStr.trim()) return [];
+      const lines = rawStr.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const leads = [];
+      lines.forEach(line => {
+        // Formats supported:
+        // [CONTACT:uuid|timestamp] Notes
+        // [BUYER:Name|Phone|Email|timestamp] Notes
+        // Legacy plain text line
+        const contactMatch = line.match(/^\[CONTACT:([^\|\]]+)(?:\|([^\]]*))?\]\s*(.*)$/);
+        const freeMatch = line.match(/^\[BUYER:([^\|]+)\|([^\|]*)\|([^\|]*)(?:\|([^\]]*))?\]\s*(.*)$/);
+
+        if (contactMatch) {
+          leads.push({
+            type: 'contact',
+            contactId: contactMatch[1],
+            timestamp: contactMatch[2] || '',
+            notes: contactMatch[3] || ''
+          });
+        } else if (freeMatch) {
+          leads.push({
+            type: 'raw',
+            name: freeMatch[1],
+            phone: freeMatch[2] || '',
+            email: freeMatch[3] || '',
+            timestamp: freeMatch[4] || '',
+            notes: freeMatch[5] || ''
+          });
+        } else {
+          leads.push({
+            type: 'raw',
+            name: line,
+            phone: '',
+            email: '',
+            timestamp: '',
+            notes: ''
+          });
+        }
+      });
+      return leads;
+    }
+
+    function stringifyBuyerLeadsArray(leads) {
+      return leads.map(l => {
+        if (l.type === 'contact') {
+          return `[CONTACT:${l.contactId}|${l.timestamp || ''}] ${l.notes || ''}`.trim();
+        } else {
+          return `[BUYER:${l.name || 'Buyer'}|${l.phone || ''}|${l.email || ''}|${l.timestamp || ''}] ${l.notes || ''}`.trim();
+        }
+      }).join('\n');
+    }
+
+    function renderAccountBuyerLeads(account) {
+      const containerInquiry = document.getElementById('ap-buyer-leads-container');
+      const containerNda = document.getElementById('ap-buyer-leads-nda-container');
+      if (!containerInquiry || !containerNda) return;
+
+      const inquiryLeads = parseBuyerLeadsArray(account.buyer_leads);
+      const ndaLeads = parseBuyerLeadsArray(account.buyer_leads_nda);
+
+      // Render Inquiries
+      if (inquiryLeads.length === 0) {
+        containerInquiry.innerHTML = `<div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic">No buyer inquiries attached yet. Click "+ Add Buyer Lead" above.</div>`;
+      } else {
+        containerInquiry.innerHTML = inquiryLeads.map((item, idx) => {
+          let name = item.name || 'Buyer';
+          let phone = item.phone || '';
+          let email = item.email || '';
+          let contactId = item.contactId;
+
+          if (item.type === 'contact' && contactId) {
+            const c = db.contacts.find(x => x.id === contactId);
+            if (c) {
+              name = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+              phone = c.cell_phone || c.other_phone || '';
+              email = c.email || '';
+            }
+          }
+
+          const nameHtml = contactId 
+            ? `<button onclick="closeModal('account-profile-modal'); openContactProfile('${contactId}')" class="font-bold text-blue-400 hover:underline flex items-center gap-1.5"><i class="fa-solid fa-user text-xs"></i>${escapeHtml(name)}</button>`
+            : `<span class="font-bold text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-user text-slate-400 text-xs"></i>${escapeHtml(name)}</span>`;
+
+          return `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs flex items-center justify-between gap-3 hover:border-slate-700 transition">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  ${nameHtml}
+                  <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">Inquiry</span>
+                  ${item.timestamp ? `<span class="text-[10px] text-slate-500">${escapeHtml(item.timestamp)}</span>` : ''}
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-2.5 flex-wrap">
+                  ${phone ? `<span><i class="fa-solid fa-phone text-slate-500 mr-1"></i>${escapeHtml(phone)}</span>` : ''}
+                  ${email ? `<span>&bull; <i class="fa-solid fa-envelope text-slate-500 mr-1"></i>${escapeHtml(email)}</span>` : ''}
+                </div>
+                ${item.notes ? `<p class="text-[11px] text-slate-300 bg-slate-900/60 p-1.5 rounded border border-slate-800/50 mt-1">${escapeHtml(item.notes)}</p>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="moveBuyerLeadToNda('${account.id}', ${idx})" title="Move to Signed NDA" class="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  <i class="fa-solid fa-file-signature text-[11px]"></i> Move to NDA
+                </button>
+                <button onclick="removeBuyerLead('${account.id}', 'inquiry', ${idx})" title="Remove Buyer Lead" class="p-1.5 text-slate-500 hover:text-red-400 rounded-lg text-xs">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render NDA Signed Leads
+      if (ndaLeads.length === 0) {
+        containerNda.innerHTML = `<div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic">No signed NDA buyer leads attached yet. Click "+ Add NDA Buyer" above.</div>`;
+      } else {
+        containerNda.innerHTML = ndaLeads.map((item, idx) => {
+          let name = item.name || 'Buyer';
+          let phone = item.phone || '';
+          let email = item.email || '';
+          let contactId = item.contactId;
+
+          if (item.type === 'contact' && contactId) {
+            const c = db.contacts.find(x => x.id === contactId);
+            if (c) {
+              name = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+              phone = c.cell_phone || c.other_phone || '';
+              email = c.email || '';
+            }
+          }
+
+          const nameHtml = contactId 
+            ? `<button onclick="closeModal('account-profile-modal'); openContactProfile('${contactId}')" class="font-bold text-emerald-400 hover:underline flex items-center gap-1.5"><i class="fa-solid fa-user-check text-xs"></i>${escapeHtml(name)}</button>`
+            : `<span class="font-bold text-emerald-300 flex items-center gap-1.5"><i class="fa-solid fa-user-check text-emerald-400 text-xs"></i>${escapeHtml(name)}</span>`;
+
+          return `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs flex items-center justify-between gap-3 hover:border-slate-700 transition" style="border-left: 3px solid #10b981;">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  ${nameHtml}
+                  <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">NDA Signed</span>
+                  ${item.timestamp ? `<span class="text-[10px] text-slate-500">${escapeHtml(item.timestamp)}</span>` : ''}
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-2.5 flex-wrap">
+                  ${phone ? `<span><i class="fa-solid fa-phone text-slate-500 mr-1"></i>${escapeHtml(phone)}</span>` : ''}
+                  ${email ? `<span>&bull; <i class="fa-solid fa-envelope text-slate-500 mr-1"></i>${escapeHtml(email)}</span>` : ''}
+                </div>
+                ${item.notes ? `<p class="text-[11px] text-slate-300 bg-slate-900/60 p-1.5 rounded border border-slate-800/50 mt-1">${escapeHtml(item.notes)}</p>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="removeBuyerLead('${account.id}', 'nda', ${idx})" title="Remove Buyer Lead" class="p-1.5 text-slate-500 hover:text-red-400 rounded-lg text-xs">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    async function moveBuyerLeadToNda(accountId, index) {
+      const account = db.accounts.find(a => a.id === accountId);
+      if (!account) return;
+
+      const inq = parseBuyerLeadsArray(account.buyer_leads);
+      const nda = parseBuyerLeadsArray(account.buyer_leads_nda);
+
+      if (index >= 0 && index < inq.length) {
+        const item = inq.splice(index, 1)[0];
+        item.timestamp = 'NDA: ' + formatNoteTimestamp(new Date());
+        nda.unshift(item);
+
+        account.buyer_leads = stringifyBuyerLeadsArray(inq);
+        account.buyer_leads_nda = stringifyBuyerLeadsArray(nda);
+
+        // Also add "Buyer Leads w/signed NDA" tag to the Contact if linked
+        if (item.contactId) {
+          const c = db.contacts.find(x => x.id === item.contactId);
+          if (c) {
+            let tags = Array.isArray(c.tags) ? c.tags : (c.tags ? [c.tags] : []);
+            if (!tags.includes('Buyer Leads w/signed NDA')) tags.push('Buyer Leads w/signed NDA');
+            c.tags = tags;
+            if (supabaseClient) await cloudUpsert('contacts', [c]);
+          }
+        }
+
+        saveLocalState();
+        if (supabaseClient) await cloudUpsert('business_accounts', [account]);
+        renderAccountBuyerLeads(account);
+        trackRecentEdit('account', account.id, account.company_name, 'Moved Buyer Lead to Signed NDA');
+      }
+    }
+
+    async function removeBuyerLead(accountId, type, index) {
+      const account = db.accounts.find(a => a.id === accountId);
+      if (!account) return;
+      if (!confirm('Remove this buyer lead from this business account?')) return;
+
+      if (type === 'inquiry') {
+        const inq = parseBuyerLeadsArray(account.buyer_leads);
+        inq.splice(index, 1);
+        account.buyer_leads = stringifyBuyerLeadsArray(inq);
+      } else {
+        const nda = parseBuyerLeadsArray(account.buyer_leads_nda);
+        nda.splice(index, 1);
+        account.buyer_leads_nda = stringifyBuyerLeadsArray(nda);
+      }
+
+      saveLocalState();
+      if (supabaseClient) await cloudUpsert('business_accounts', [account]);
+      renderAccountBuyerLeads(account);
+    }
+
+    async function saveBuyerLeadRecord() {
+      const accountId = document.getElementById('buyer-modal-account-id').value;
+      const account = db.accounts.find(a => a.id === accountId);
+      if (!account) { alert('No account selected.'); return; }
+
+      const isNda = document.getElementById('buyer-lead-is-nda').checked;
+      const notes = document.getElementById('buyer-lead-notes').value.trim();
+      const ts = formatNoteTimestamp(new Date());
+
+      let newLead = null;
+
+      if (currentBuyerModalMode === 'existing') {
+        const contactId = document.getElementById('buyer-select-contact').value;
+        if (!contactId) { alert('Please select an existing contact.'); return; }
+        
+        newLead = {
+          type: 'contact',
+          contactId,
+          timestamp: isNda ? `NDA: ${ts}` : `Added: ${ts}`,
+          notes
+        };
+
+        // Tag the contact as Buyer or Buyer w/ NDA
+        const c = db.contacts.find(x => x.id === contactId);
+        if (c) {
+          let tags = Array.isArray(c.tags) ? c.tags : (c.tags ? [c.tags] : []);
+          if (!tags.includes('Buyer')) tags.push('Buyer');
+          if (isNda && !tags.includes('Buyer Leads w/signed NDA')) tags.push('Buyer Leads w/signed NDA');
+          c.tags = tags;
+          if (supabaseClient) await cloudUpsert('contacts', [c]);
+        }
+      } else {
+        const firstName = document.getElementById('buyer-new-first-name').value.trim();
+        const lastName = document.getElementById('buyer-new-last-name').value.trim();
+        if (!firstName || !lastName) { alert('First and Last name are required for new contact.'); return; }
+
+        const phone = document.getElementById('buyer-new-phone').value.trim();
+        const email = document.getElementById('buyer-new-email').value.trim();
+
+        // Create new Contact in CRM
+        const newContact = {
+          id: safeUUID(),
+          first_name: firstName,
+          last_name: lastName,
+          title: 'Buyer',
+          business_account_id: null,
+          cell_phone: phone,
+          other_phone: '',
+          comm_channel: 'Cell Phone',
+          email: email,
+          social_media: '',
+          street_address: '',
+          city: '',
+          state: '',
+          zip_code: '',
+          tags: isNda ? ['Buyer', 'Buyer Leads w/signed NDA'] : ['Buyer'],
+          notes: notes ? `[${ts}] Added as buyer lead for ${account.company_name}: ${notes}` : '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        db.contacts.push(newContact);
+        if (supabaseClient) await cloudUpsert('contacts', [newContact]);
+
+        newLead = {
+          type: 'contact',
+          contactId: newContact.id,
+          timestamp: isNda ? `NDA: ${ts}` : `Added: ${ts}`,
+          notes
+        };
+      }
+
+      // Attach to Account
+      if (isNda) {
+        const nda = parseBuyerLeadsArray(account.buyer_leads_nda);
+        nda.unshift(newLead);
+        account.buyer_leads_nda = stringifyBuyerLeadsArray(nda);
+      } else {
+        const inq = parseBuyerLeadsArray(account.buyer_leads);
+        inq.unshift(newLead);
+        account.buyer_leads = stringifyBuyerLeadsArray(inq);
+      }
+
+      saveLocalState();
+      if (supabaseClient) await cloudUpsert('business_accounts', [account]);
+
+      closeModal('add-buyer-modal');
+      renderAccountBuyerLeads(account);
+      renderAllViews();
+      trackRecentEdit('account', account.id, account.company_name, isNda ? 'Attached signed NDA buyer lead' : 'Attached buyer inquiry');
     }
 
     function renderContactNotesList(contact) {
