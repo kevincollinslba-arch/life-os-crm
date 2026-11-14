@@ -470,13 +470,14 @@
                 <th class="p-3.5">Phone</th>
                 <th class="p-3.5">Revenue / Employees</th>
                 <th class="p-3.5">Property Status</th>
+                <th class="p-3.5">Listing Tags</th>
                 <th class="p-3.5">Primary Contact</th>
                 <th class="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="accounts-table-body" class="divide-y divide-slate-800/60 font-normal">
               <tr>
-                <td colspan="6" class="text-center py-12 text-slate-500">
+                <td colspan="7" class="text-center py-12 text-slate-500">
                   <i class="fa-solid fa-building text-2xl mb-2 text-slate-600 block"></i>
                   No business accounts found. Use the Salesgenie Importer to load your dataset!
                 </td>
@@ -2464,7 +2465,7 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-500">No business accounts found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-slate-500">No business accounts found.</td></tr>`;
         return;
       }
 
@@ -2476,9 +2477,8 @@
         return `
           <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="openAccountProfile('${a.id}', event)">
             <td class="p-3.5">
-              <div class="font-bold text-blue-400 hover:text-blue-300 text-xs flex items-center gap-2 flex-wrap">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-building text-slate-500"></i> ${escapeHtml(a.company_name)}</span>
-                ${listingBadge}
+              <div class="font-bold text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-building text-slate-500"></i> ${escapeHtml(a.company_name)}
               </div>
               <div class="text-[11px] text-slate-400 pl-4">${escapeHtml(a.location_street || '')} ${a.location_city ? `&bull; ${escapeHtml(a.location_city)}, ${escapeHtml(a.location_state || '')}` : ''}</div>
             </td>
@@ -2493,6 +2493,9 @@
               <span class="badge-tag ${a.property_status === 'Owned' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-300'}">
                 ${escapeHtml(a.property_status || 'Leased')}
               </span>
+            </td>
+            <td class="p-3.5">
+              ${listingBadge || '<span class="text-slate-600 italic text-[11px]">Off-Market</span>'}
             </td>
             <td class="p-3.5 text-slate-300" onclick="event.stopPropagation()">
               ${primaryOwner ? `<button onclick="openContactProfile('${primaryOwner.id}')" class="font-medium hover:text-blue-400 text-left"><i class="fa-solid fa-user text-slate-500 mr-1"></i>${escapeHtml(ownerName)}</button>` : '<span class="text-slate-500 italic">Not Assigned</span>'}
