@@ -3263,8 +3263,7 @@
     function deleteCallRecord(id) {
       db.calls = db.calls.filter(c => c.id !== id);
       saveLocalState();
-      if (supabaseClient) supabaseClient.from('calls').delete().eq('id', id);
-      renderAllViews();
+      if (supabaseClient) supabaseClient.from('calls').delete().eq('id', id).then(r => { if (r.error) console.error("CALL DELETE FAILED", r.error); else console.log("CALL DELETE OK", r); });
     }
 
     function editContactRecord(id) {
@@ -3445,8 +3444,7 @@
     function deleteDealRecord(id) {
       db.deals = db.deals.filter(d => d.id !== id);
       saveLocalState();
-      if (supabaseClient) supabaseClient.from('deals').delete().eq('id', id);
-      renderAllViews();
+      if (supabaseClient) supabaseClient.from('deals').delete().eq('id', id).then(r => { if (r.error) console.error("DEAL DELETE FAILED", r.error); else console.log("DEAL DELETE OK", r); });
     }
 
     function toggleTaskDone(id) {
@@ -3463,15 +3461,14 @@
     function deleteTaskRecord(id) {
       db.tasks = db.tasks.filter(t => t.id !== id);
       saveLocalState();
-      if (supabaseClient) supabaseClient.from('tasks').delete().eq('id', id);
-      renderTasksList();
+      if (supabaseClient) supabaseClient.from('tasks').delete().eq('id', id).then(r => { if (r.error) console.error("TASK DELETE FAILED", r.error); else console.log("TASK DELETE OK", r); });
       renderHomepageMetrics();
     }
 
     function deleteMeetingRecord(id) {
       db.meetings = db.meetings.filter(m => m.id !== id);
       saveLocalState();
-      if (supabaseClient) supabaseClient.from('meetings').delete().eq('id', id);
+      if (supabaseClient) supabaseClient.from('meetings').delete().eq('id', id).then(r => { if (r.error) console.error("MEETING DELETE FAILED", r.error); else console.log("MEETING DELETE OK", r); });
       renderMeetingsList();
       renderHomepageMetrics();
     }
