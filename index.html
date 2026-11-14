@@ -375,12 +375,6 @@
             <option value="Non-Business Owner">Non-Business Owner</option>
             <option value="Seller">Seller</option>
             <option value="Buyer">Buyer</option>
-            <option value="My Listing - Active">My Listing - Active</option>
-            <option value="My Listing - Closed">My Listing - Closed</option>
-            <option value="My Listing - Expired">My Listing - Expired</option>
-            <option value="Office Listing - Active">Office Listing - Active</option>
-            <option value="Office Listing - Closed">Office Listing - Closed</option>
-            <option value="Office Listing Expired">Office Listing Expired</option>
             <option value="Property Owner">Property Owner</option>
             <option value="Commercial Owner">Commercial Owner</option>
             <option value="Landlord / Property Manager">Landlord / Property Manager</option>
@@ -446,6 +440,17 @@
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
             <input type="text" id="account-search-input" oninput="renderAccountsList()" placeholder="Search by company name, city, owner, phone..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500" />
           </div>
+          <select id="account-listing-filter" onchange="renderAccountsList()" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-medium">
+            <option value="ALL">All Listing Statuses</option>
+            <option value="My Listing - Active">My Listing - Active</option>
+            <option value="My Listing - Closed">My Listing - Closed</option>
+            <option value="My Listing - Expired">My Listing - Expired</option>
+            <option value="Office Listing - Active">Office Listing - Active</option>
+            <option value="Office Listing - Closed">Office Listing - Closed</option>
+            <option value="Office Listing - Expired">Office Listing - Expired</option>
+            <option value="Other Listing - Active">Other Listing - Active</option>
+            <option value="Not Listed / Off-Market">Not Listed / Off-Market</option>
+          </select>
           <select id="account-property-filter" onchange="renderAccountsList()" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
             <option value="ALL">All Property Statuses</option>
             <option value="Leased">Leased</option>
@@ -910,7 +915,7 @@
               <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-handshake text-blue-400"></i> Core Deal Parties
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
                   <input type="checkbox" name="role-tag" value="Business Owner" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
                   <span>Business Owner</span>
@@ -926,30 +931,6 @@
                 <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
                   <input type="checkbox" name="role-tag" value="Buyer" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
                   <span>Buyer</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="My Listing - Active" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>My Listing - Active</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="My Listing - Closed" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>My Listing - Closed</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="My Listing - Expired" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>My Listing - Expired</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="Office Listing - Active" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>Office Listing - Active</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="Office Listing - Closed" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>Office Listing - Closed</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-                  <input type="checkbox" name="role-tag" value="Office Listing Expired" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
-                  <span>Office Listing Expired</span>
                 </label>
               </div>
             </div>
@@ -1146,7 +1127,7 @@
         </div>
 
         <!-- Financial & Size -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Annual Revenue</label>
             <input type="text" id="account-revenue" placeholder="e.g. $1,200,000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
@@ -1156,11 +1137,24 @@
             <input type="text" id="account-employees" placeholder="e.g. 5" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Property Status (Leased or Owned)</label>
+            <label class="block font-semibold text-slate-300 mb-1">Property Status</label>
             <select id="account-property-status" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500">
               <option value="Leased">Leased</option>
               <option value="Owned">Owned</option>
               <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1"><i class="fa-solid fa-tag text-emerald-400 mr-1"></i> Listing Status</label>
+            <select id="account-listing-status" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 font-medium">
+              <option value="Not Listed / Off-Market">Not Listed / Off-Market</option>
+              <option value="My Listing - Active">My Listing - Active</option>
+              <option value="My Listing - Closed">My Listing - Closed</option>
+              <option value="My Listing - Expired">My Listing - Expired</option>
+              <option value="Office Listing - Active">Office Listing - Active</option>
+              <option value="Office Listing - Closed">Office Listing - Closed</option>
+              <option value="Office Listing - Expired">Office Listing - Expired</option>
+              <option value="Other Listing - Active">Other Listing - Active</option>
             </select>
           </div>
         </div>
@@ -1471,8 +1465,9 @@
             <i class="fa-solid fa-building"></i>
           </div>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <h3 class="font-bold text-lg text-white" id="ap-name">Company Name</h3>
+              <span id="ap-listing-badge"></span>
               <span id="ap-property-badge" class="badge-tag bg-purple-500/10 text-purple-400 border border-purple-500/20">Leased</span>
             </div>
             <div class="text-xs text-slate-400 mt-0.5" id="ap-location">Burbank, CA</div>
@@ -2423,10 +2418,38 @@
       }).join('');
     }
 
+    // Helper to get clean badge styling for the 8 listing statuses
+    function getListingStatusBadge(status) {
+      if (!status || status === 'Not Listed / Off-Market') return '';
+      if (status === 'My Listing - Active') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap"><i class="fa-solid fa-tag text-[9px] mr-1"></i>My Listing - Active</span>`;
+      }
+      if (status === 'My Listing - Closed') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap"><i class="fa-solid fa-circle-check text-[9px] mr-1"></i>My Listing - Closed</span>`;
+      }
+      if (status === 'My Listing - Expired') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap"><i class="fa-solid fa-clock-rotate-left text-[9px] mr-1"></i>My Listing - Expired</span>`;
+      }
+      if (status === 'Office Listing - Active') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 whitespace-nowrap"><i class="fa-solid fa-building-flag text-[9px] mr-1"></i>Office Listing - Active</span>`;
+      }
+      if (status === 'Office Listing - Closed') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"><i class="fa-solid fa-circle-check text-[9px] mr-1"></i>Office Listing - Closed</span>`;
+      }
+      if (status === 'Office Listing - Expired') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30 whitespace-nowrap"><i class="fa-solid fa-clock-rotate-left text-[9px] mr-1"></i>Office Listing - Expired</span>`;
+      }
+      if (status === 'Other Listing - Active') {
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30 whitespace-nowrap"><i class="fa-solid fa-arrow-up-right-from-square text-[9px] mr-1"></i>Other Listing - Active</span>`;
+      }
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 whitespace-nowrap">${escapeHtml(status)}</span>`;
+    }
+
     // Business Accounts View
     function renderAccountsList() {
       const tbody = document.getElementById('accounts-table-body');
       const search = (document.getElementById('account-search-input').value || '').toLowerCase();
+      const listingFilter = document.getElementById('account-listing-filter') ? document.getElementById('account-listing-filter').value : 'ALL';
       const propFilter = document.getElementById('account-property-filter').value;
 
       let filtered = db.accounts.filter(a => {
@@ -2435,7 +2458,9 @@
         const phone = (a.phone_combined || '').toLowerCase();
         const matchesSearch = name.includes(search) || city.includes(search) || phone.includes(search);
         const matchesProp = (propFilter === 'ALL') || (a.property_status === propFilter);
-        return matchesSearch && matchesProp;
+        const accListing = a.listing_status || 'Not Listed / Off-Market';
+        const matchesListing = (listingFilter === 'ALL') || (accListing === listingFilter);
+        return matchesSearch && matchesProp && matchesListing;
       });
 
       if (filtered.length === 0) {
@@ -2446,12 +2471,14 @@
       tbody.innerHTML = filtered.map(a => {
         const primaryOwner = db.contacts.find(c => c.business_account_id === a.id);
         const ownerName = primaryOwner ? `${primaryOwner.first_name} ${primaryOwner.last_name}` : 'Not Assigned';
+        const listingBadge = getListingStatusBadge(a.listing_status);
 
         return `
           <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="openAccountProfile('${a.id}', event)">
             <td class="p-3.5">
-              <div class="font-bold text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1.5">
-                <i class="fa-solid fa-building text-slate-500"></i> ${escapeHtml(a.company_name)}
+              <div class="font-bold text-blue-400 hover:text-blue-300 text-xs flex items-center gap-2 flex-wrap">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-building text-slate-500"></i> ${escapeHtml(a.company_name)}</span>
+                ${listingBadge}
               </div>
               <div class="text-[11px] text-slate-400 pl-4">${escapeHtml(a.location_street || '')} ${a.location_city ? `&bull; ${escapeHtml(a.location_city)}, ${escapeHtml(a.location_state || '')}` : ''}</div>
             </td>
@@ -2730,6 +2757,11 @@
       document.getElementById('ap-name').innerText = account.company_name || 'Business Account';
       document.getElementById('ap-location').innerText = [account.location_city, account.location_state].filter(Boolean).join(', ') || 'Location TBD';
       
+      const lBadgeContainer = document.getElementById('ap-listing-badge');
+      if (lBadgeContainer) {
+        lBadgeContainer.innerHTML = getListingStatusBadge(account.listing_status);
+      }
+
       const pBadge = document.getElementById('ap-property-badge');
       pBadge.innerText = account.property_status || 'Leased';
       pBadge.className = `badge-tag ${account.property_status === 'Owned' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-300'}`;
@@ -3011,6 +3043,24 @@
     function openAccountModal() {
       document.getElementById('account-form-id').value = '';
       document.getElementById('account-modal-title').innerText = 'New Business Account';
+      document.getElementById('account-name').value = '';
+      document.getElementById('account-phone').value = '';
+      document.getElementById('account-phone-type').value = 'Main / Phone 1';
+      document.getElementById('account-comm-channel').value = '';
+      document.getElementById('account-website').value = '';
+      document.getElementById('account-revenue').value = '';
+      document.getElementById('account-employees').value = '';
+      document.getElementById('account-property-status').value = 'Leased';
+      if (document.getElementById('account-listing-status')) {
+        document.getElementById('account-listing-status').value = 'Not Listed / Off-Market';
+      }
+      document.getElementById('account-street').value = '';
+      document.getElementById('account-city').value = '';
+      document.getElementById('account-state').value = '';
+      document.getElementById('account-zip').value = '';
+      document.getElementById('account-description').value = '';
+      document.getElementById('account-buyer-leads').value = '';
+      document.getElementById('account-buyer-leads-nda').value = '';
       openModal('account-modal');
     }
     function openDealModal(accountId, contactId, defaultTitle) {
@@ -3420,6 +3470,9 @@
       document.getElementById('account-revenue').value = a.annual_revenue || '';
       document.getElementById('account-employees').value = a.employee_count || '';
       document.getElementById('account-property-status').value = a.property_status || 'Leased';
+      if (document.getElementById('account-listing-status')) {
+        document.getElementById('account-listing-status').value = a.listing_status || 'Not Listed / Off-Market';
+      }
       document.getElementById('account-street').value = a.location_street || '';
       document.getElementById('account-city').value = a.location_city || '';
       document.getElementById('account-state').value = a.location_state || '';
@@ -3498,6 +3551,7 @@
         annual_revenue: document.getElementById('account-revenue').value.trim(),
         employee_count: document.getElementById('account-employees').value.trim(),
         property_status: document.getElementById('account-property-status').value,
+        listing_status: document.getElementById('account-listing-status') ? document.getElementById('account-listing-status').value : 'Not Listed / Off-Market',
         location_street: document.getElementById('account-street').value.trim(),
         location_city: document.getElementById('account-city').value.trim(),
         location_state: document.getElementById('account-state').value.trim(),
