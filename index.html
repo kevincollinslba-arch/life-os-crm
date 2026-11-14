@@ -59,17 +59,23 @@
   <aside class="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-4 shrink-0 h-screen sticky top-0 justify-between">
     <div>
       <!-- App Brand -->
-      <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800">
-        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-          <i class="fa-solid fa-briefcase text-lg"></i>
+      <div class="flex items-center justify-between px-2 py-3 mb-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+            <i class="fa-solid fa-briefcase text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-base tracking-tight text-white leading-tight">LifeOS CRM</h1>
+            <span class="text-xs text-blue-400 font-medium flex items-center gap-1.5 mt-0.5">
+              <span id="desktop-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="desktop-sync-status">Cloud Connected</span>
+            </span>
+          </div>
         </div>
-        <div>
-          <h1 class="font-bold text-base tracking-tight text-white leading-tight">LifeOS CRM</h1>
-          <span class="text-xs text-blue-400 font-medium flex items-center gap-1.5 mt-0.5">
-            <span id="desktop-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="desktop-sync-status">Cloud Connected</span>
-          </span>
-        </div>
+        <!-- Desktop Refresh Button -->
+        <button onclick="manualSyncRefresh(this)" title="Refresh data from Cloud" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition border border-slate-700/50">
+          <i class="fa-solid fa-arrows-rotate sync-refresh-icon"></i>
+        </button>
       </div>
 
       <!-- Navigation Links -->
@@ -139,6 +145,10 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
+      <!-- Mobile Refresh Button -->
+      <button onclick="manualSyncRefresh(this)" title="Refresh data from Cloud" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs border border-slate-700/50">
+        <i class="fa-solid fa-arrows-rotate sync-refresh-icon"></i>
+      </button>
       <button onclick="openModal('quick-add-modal')" class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow">
         <i class="fa-solid fa-plus"></i>
       </button>
@@ -475,61 +485,73 @@
         </button>
       </div>
 
-      <!-- 6-Stage Kanban Board -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 overflow-x-auto pb-4">
+      <!-- 6-Stage Pipeline (Option A: 3 Rows x 2 Columns Grid for Clean Desktop Spacing) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
         
         <!-- Stage 1: Initial Talk -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-sky-400">1. Initial Talk</span>
-            <span id="stage-count-1" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-sky-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span> 1. Initial Talk
+            </span>
+            <span id="stage-count-1" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-1" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-1" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
         <!-- Stage 2: Valuation & Listing -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-blue-400">2. Valuation & Listing</span>
-            <span id="stage-count-2" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-blue-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span> 2. Valuation & Listing
+            </span>
+            <span id="stage-count-2" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-2" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-2" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
         <!-- Stage 3: Marketing & NDA Inquiries -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-amber-400">3. Marketing & NDA</span>
-            <span id="stage-count-3" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-amber-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 3. Marketing & NDA
+            </span>
+            <span id="stage-count-3" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-3" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-3" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
         <!-- Stage 4: Offers & LOI -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-orange-400">4. Offers & LOI</span>
-            <span id="stage-count-4" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-orange-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-orange-400"></span> 4. Offers & LOI
+            </span>
+            <span id="stage-count-4" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-4" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-4" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
         <!-- Stage 5: Escrow & Due Diligence -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-purple-400">5. Escrow & DD</span>
-            <span id="stage-count-5" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-purple-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span> 5. Escrow & Due Diligence
+            </span>
+            <span id="stage-count-5" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-5" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-5" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
-        <!-- Stage 6: Closed -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px] flex flex-col">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
-            <span class="text-xs font-bold text-emerald-400">6. Closed Won</span>
-            <span id="stage-count-6" class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full font-semibold">0</span>
+        <!-- Stage 6: Closed Won -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col shadow-sm">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3">
+            <span class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 6. Closed Won
+            </span>
+            <span id="stage-count-6" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0</span>
           </div>
-          <div id="stage-col-6" class="space-y-2.5 flex-1 min-h-[150px]"></div>
+          <div id="stage-col-6" class="space-y-2.5 flex-1 min-h-[140px]"></div>
         </div>
 
       </div>
@@ -1854,6 +1876,19 @@
       }
     }
 
+    // Manual Cloud Refresh Trigger with Visual Spinner
+    async function manualSyncRefresh(btnEl) {
+      const icon = btnEl ? btnEl.querySelector('.sync-refresh-icon') : null;
+      if (icon) icon.classList.add('fa-spin');
+      try {
+        await fetchCloudData();
+      } finally {
+        setTimeout(() => {
+          if (icon) icon.classList.remove('fa-spin');
+        }, 500);
+      }
+    }
+
     function updateSyncStatus(connected) {
       const dot = document.getElementById('desktop-sync-dot');
       const status = document.getElementById('desktop-sync-status');
@@ -2854,6 +2889,21 @@
     // Modal Helpers
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function closeAllModals() {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden'));
+    }
+
+    // Global listeners: ESC key and outside-backdrop click to close ANY modal immediately
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAllModals();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.classList.contains('modal-backdrop')) {
+        e.target.classList.add('hidden');
+      }
+    });
+
     function openSettingsModal() { openModal('settings-modal'); }
     function openNewCallModal() {
       populateDropdowns();
