@@ -276,7 +276,7 @@
           </div>
         </div>
 
-        <!-- 3. ACTIVE TASKS (TODAY & UPCOMING) -->
+        <!-- 3. TASKS HUB -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col">
           <div class="flex items-center justify-between pb-4 border-b border-slate-800">
             <div class="flex items-center gap-2">
@@ -284,9 +284,15 @@
               <h3 class="font-bold text-base text-white">Tasks</h3>
               <span id="badge-active-tasks-count" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-medium">0</span>
             </div>
-            <button onclick="openNewTaskModal()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-              <i class="fa-solid fa-plus text-[10px]"></i> New Task
-            </button>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+                <button onclick="setTaskActiveSubTab('active')" id="btn-task-active" class="px-2.5 py-1 rounded-md font-medium text-white bg-amber-600 transition">Active</button>
+                <button onclick="setTaskActiveSubTab('completed')" id="btn-task-completed" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Completed</button>
+              </div>
+              <button onclick="openNewTaskModal()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-plus text-[10px]"></i> New Task
+              </button>
+            </div>
           </div>
           <div id="tasks-active-list" class="mt-4 space-y-2.5 flex-1 min-h-[180px] max-h-[300px] overflow-y-auto pr-1">
             <div class="text-center py-12 text-slate-500 text-xs">
@@ -302,6 +308,10 @@
               <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
               <h3 class="font-bold text-base text-white">Task Overdue</h3>
               <span id="badge-overdue-tasks-count" class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-semibold">0</span>
+            </div>
+            <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+              <button onclick="setTaskOverdueSubTab('overdue')" id="btn-overdue-tab-overdue" class="px-2.5 py-1 rounded-md font-medium text-white bg-red-600 transition">Overdue</button>
+              <button onclick="setTaskOverdueSubTab('completed')" id="btn-overdue-tab-completed" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Completed</button>
             </div>
           </div>
           <div id="tasks-overdue-list" class="mt-4 space-y-2.5 flex-1 min-h-[180px] max-h-[300px] overflow-y-auto pr-1">
@@ -2232,6 +2242,37 @@
       }).join('');
     }
 
+    let currentTaskActiveSubTab = 'active'; // 'active' or 'completed'
+    let currentTaskOverdueSubTab = 'overdue'; // 'overdue' or 'completed'
+
+    function setTaskActiveSubTab(tab) {
+      currentTaskActiveSubTab = tab;
+      const btnActive = document.getElementById('btn-task-active');
+      const btnCompleted = document.getElementById('btn-task-completed');
+      if (tab === 'active') {
+        if (btnActive) btnActive.className = 'px-2.5 py-1 rounded-md font-medium text-white bg-amber-600 transition';
+        if (btnCompleted) btnCompleted.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition';
+      } else {
+        if (btnCompleted) btnCompleted.className = 'px-2.5 py-1 rounded-md font-medium text-white bg-emerald-600 transition';
+        if (btnActive) btnActive.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition';
+      }
+      renderTasksList();
+    }
+
+    function setTaskOverdueSubTab(tab) {
+      currentTaskOverdueSubTab = tab;
+      const btnOverdue = document.getElementById('btn-overdue-tab-overdue');
+      const btnCompleted = document.getElementById('btn-overdue-tab-completed');
+      if (tab === 'overdue') {
+        if (btnOverdue) btnOverdue.className = 'px-2.5 py-1 rounded-md font-medium text-white bg-red-600 transition';
+        if (btnCompleted) btnCompleted.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition';
+      } else {
+        if (btnCompleted) btnCompleted.className = 'px-2.5 py-1 rounded-md font-medium text-white bg-emerald-600 transition';
+        if (btnOverdue) btnOverdue.className = 'px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition';
+      }
+      renderTasksList();
+    }
+
     function renderTasksList() {
       const activeContainer = document.getElementById('tasks-active-list');
       const overdueContainer = document.getElementById('tasks-overdue-list');
@@ -2239,77 +2280,128 @@
       const overdueBadge = document.getElementById('badge-overdue-tasks-count');
       const todayStr = new Date().toISOString().slice(0, 10);
 
-      // Separate Active vs Overdue tasks
+      // Separate Active, Overdue, and Completed tasks
       const activeTasks = db.tasks.filter(t => t.status !== 'Completed' && (!t.due_date || t.due_date >= todayStr));
       const overdueTasks = db.tasks.filter(t => t.status !== 'Completed' && t.due_date && t.due_date < todayStr);
+      const completedTasks = db.tasks.filter(t => t.status === 'Completed');
 
-      // Sort both by due date
+      // Sort
       activeTasks.sort((a, b) => (a.due_date || '9999').localeCompare(b.due_date || '9999'));
       overdueTasks.sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
+      completedTasks.sort((a, b) => (b.due_date || b.created_at || '').localeCompare(a.due_date || a.created_at || ''));
 
       // Update Header Badges
-      if (activeBadge) activeBadge.innerText = activeTasks.length;
-      if (overdueBadge) overdueBadge.innerText = overdueTasks.length;
+      if (activeBadge) activeBadge.innerText = currentTaskActiveSubTab === 'active' ? activeTasks.length : completedTasks.length;
+      if (overdueBadge) overdueBadge.innerText = currentTaskOverdueSubTab === 'overdue' ? overdueTasks.length : completedTasks.length;
 
-      // 1. Render Active Tasks (Today & Upcoming)
+      // 1. Render Tasks Box (Active vs Completed)
       if (activeContainer) {
-        if (activeTasks.length === 0) {
-          activeContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-circle-check text-2xl mb-1 text-slate-600"></i>All caught up! No active tasks.</div>`;
-        } else {
-          activeContainer.innerHTML = activeTasks.map(t => {
-            const isToday = t.due_date === todayStr;
-            const dateTag = t.due_date 
-              ? (isToday 
-                  ? `<span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30">Due Today</span>` 
-                  : `<span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-slate-800 text-slate-400 border border-slate-700/60">Due: ${t.due_date}</span>`)
-              : '';
+        if (currentTaskActiveSubTab === 'active') {
+          if (activeTasks.length === 0) {
+            activeContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-circle-check text-2xl mb-1 text-slate-600"></i>All caught up! No active tasks.</div>`;
+          } else {
+            activeContainer.innerHTML = activeTasks.map(t => {
+              const isToday = t.due_date === todayStr;
+              const dateTag = t.due_date 
+                ? (isToday 
+                    ? `<span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30">Due Today</span>` 
+                    : `<span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-slate-800 text-slate-400 border border-slate-700/60">Due: ${t.due_date}</span>`)
+                : '';
 
-            return `
-              <div class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-slate-700 transition">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <input type="checkbox" onchange="toggleTaskDone('${t.id}')" title="Click to complete task" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
-                  <div class="min-w-0">
-                    <span class="text-slate-200 font-medium block truncate">${escapeHtml(t.title)}</span>
-                    ${dateTag}
+              return `
+                <div class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-slate-700 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <input type="checkbox" onchange="toggleTaskDone('${t.id}')" title="Click to complete task" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
+                    <div class="min-w-0">
+                      <span class="text-slate-200 font-medium block truncate">${escapeHtml(t.title)}</span>
+                      ${dateTag}
+                    </div>
                   </div>
+                  <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5 shrink-0 ml-2" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
                 </div>
-                <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5 shrink-0 ml-2" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            `;
-          }).join('');
+              `;
+            }).join('');
+          }
+        } else {
+          // Completed Tasks View
+          if (completedTasks.length === 0) {
+            activeContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-list-check text-2xl mb-1 text-slate-600"></i>No completed tasks yet.</div>`;
+          } else {
+            activeContainer.innerHTML = completedTasks.map(t => {
+              return `
+                <div class="bg-slate-950 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-emerald-500/40 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" title="Click to uncheck / reopen task" class="rounded bg-slate-900 border-emerald-500 text-emerald-500 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
+                    <div class="min-w-0">
+                      <span class="text-slate-300 font-medium block truncate line-through opacity-80">${escapeHtml(t.title)}</span>
+                      <span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>
+                    </div>
+                  </div>
+                  <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5 shrink-0 ml-2" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              `;
+            }).join('');
+          }
         }
       }
 
-      // 2. Render Overdue Tasks (With 1-Click Mark Completed / Incomplete checkbox)
+      // 2. Render Overdue Tasks Box (Overdue vs Completed)
       if (overdueContainer) {
-        if (overdueTasks.length === 0) {
-          overdueContainer.innerHTML = `
-            <div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center">
-              <i class="fa-solid fa-shield-check text-2xl mb-1 text-emerald-400"></i>
-              <span class="text-emerald-400 font-medium">No Overdue Tasks!</span>
-              <span class="text-[11px] text-slate-500 mt-0.5">Everything is on track.</span>
-            </div>
-          `;
-        } else {
-          overdueContainer.innerHTML = overdueTasks.map(t => {
-            return `
-              <div class="bg-red-950/20 border border-red-500/30 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-red-500/50 transition">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <input type="checkbox" onchange="toggleTaskDone('${t.id}')" title="Check off to complete overdue task" class="rounded bg-slate-900 border-red-400/60 text-emerald-500 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
-                  <div class="min-w-0">
-                    <span class="text-red-200 font-medium block truncate">${escapeHtml(t.title)}</span>
-                    <span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-semibold bg-red-500/20 text-red-400 border border-red-500/40">Overdue: ${t.due_date}</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-1 shrink-0 ml-2">
-                  <button onclick="toggleTaskDone('${t.id}')" class="px-2 py-0.5 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-medium" title="Mark Done">
-                    Mark Done
-                  </button>
-                  <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
-                </div>
+        if (currentTaskOverdueSubTab === 'overdue') {
+          if (overdueTasks.length === 0) {
+            overdueContainer.innerHTML = `
+              <div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center">
+                <i class="fa-solid fa-shield-check text-2xl mb-1 text-emerald-400"></i>
+                <span class="text-emerald-400 font-medium">No Overdue Tasks!</span>
+                <span class="text-[11px] text-slate-500 mt-0.5">Everything is on track.</span>
               </div>
             `;
-          }).join('');
+          } else {
+            overdueContainer.innerHTML = overdueTasks.map(t => {
+              return `
+                <div class="bg-red-950/20 border border-red-500/30 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-red-500/50 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <input type="checkbox" onchange="toggleTaskDone('${t.id}')" title="Check off to complete overdue task" class="rounded bg-slate-900 border-red-400/60 text-emerald-500 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
+                    <div class="min-w-0">
+                      <span class="text-red-200 font-medium block truncate">${escapeHtml(t.title)}</span>
+                      <span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-semibold bg-red-500/20 text-red-400 border border-red-500/40">Overdue: ${t.due_date}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0 ml-2">
+                    <button onclick="toggleTaskDone('${t.id}')" class="px-2 py-0.5 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-medium" title="Mark Done">
+                      Mark Done
+                    </button>
+                    <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        } else {
+          // Completed Tasks View inside Overdue box
+          if (completedTasks.length === 0) {
+            overdueContainer.innerHTML = `
+              <div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center">
+                <i class="fa-solid fa-list-check text-2xl mb-1 text-slate-600"></i>
+                <span class="text-slate-400 font-medium">No Completed Tasks</span>
+              </div>
+            `;
+          } else {
+            overdueContainer.innerHTML = completedTasks.map(t => {
+              return `
+                <div class="bg-slate-950 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-emerald-500/40 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" title="Click to uncheck / reopen task" class="rounded bg-slate-900 border-emerald-500 text-emerald-500 focus:ring-0 shrink-0 cursor-pointer w-4 h-4" />
+                    <div class="min-w-0">
+                      <span class="text-slate-300 font-medium block truncate line-through opacity-80">${escapeHtml(t.title)}</span>
+                      <span class="inline-block mt-0.5 text-[10px] px-2 py-0.2 rounded font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>
+                    </div>
+                  </div>
+                  <button onclick="deleteTaskRecord('${t.id}')" class="text-slate-500 hover:text-red-400 p-1.5 shrink-0 ml-2" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              `;
+            }).join('');
+          }
         }
       }
     }
