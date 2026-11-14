@@ -2314,8 +2314,8 @@
           details: details || '',
           timestamp: new Date().toISOString()
         };
-        // Put newest first, keep up to 30
-        history = [newEntry, ...history.filter(h => !(h.entityType === entityType && h.entityId === entityId))].slice(0, 30);
+        // Put newest first, keep up to 50
+        history = [newEntry, ...history.filter(h => !(h.entityType === entityType && h.entityId === entityId))].slice(0, 50);
         localStorage.setItem('lifeos_recent_edits', JSON.stringify(history));
       } catch (e) {
         console.warn('Track edit error:', e);
@@ -2360,7 +2360,7 @@
 
       // Sort newest first
       allAdded.sort((a, b) => new Date(b.time) - new Date(a.time));
-      const topAdded = allAdded.slice(0, 15);
+      const topAdded = allAdded.slice(0, 50);
 
       if (addedBadge) addedBadge.innerText = topAdded.length;
       if (addedContainer) {
@@ -2397,12 +2397,12 @@
         editsHistory = rawHistory.filter(h => h.entityType === 'contact' || h.entityType === 'account');
       } catch (e) {}
 
-      if (editsBadge) editsBadge.innerText = editsHistory.length;
+      if (editsBadge) editsBadge.innerText = Math.min(editsHistory.length, 50);
       if (editsContainer) {
         if (editsHistory.length === 0) {
           editsContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-pen-to-square text-2xl mb-1 text-slate-600"></i>No recent edits recorded yet.</div>`;
         } else {
-          editsContainer.innerHTML = editsHistory.slice(0, 15).map(item => {
+          editsContainer.innerHTML = editsHistory.slice(0, 50).map(item => {
             const timeAgo = formatNoteTimestamp(item.timestamp);
             let clickFn = '';
             let icon = 'fa-pen';
