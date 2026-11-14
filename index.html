@@ -1840,41 +1840,21 @@
         const hasCloudAccounts = aRes.data && aRes.data.length > 0;
 
         if (hasCloudContacts || hasCloudAccounts) {
-          // Cloud has real data -> safely update local state from cloud
+          // Cloud has real contacts/accounts -> update local state directly from Supabase
           if (cRes.data) db.contacts = cRes.data;
           if (aRes.data) db.accounts = aRes.data;
           
-          // For calls, meetings, tasks, deals: only replace if cloud has records or query succeeded
-          if (clRes.data && clRes.data.length > 0) {
-            db.calls = clRes.data;
-          } else if (!clRes.error && clRes.data && clRes.data.length === 0 && db.calls.length > 0) {
-            // Local has calls, cloud is 0 -> push local calls up to cloud
-            cloudUpsert('calls', db.calls);
-          }
-
-          if (mRes.data && mRes.data.length > 0) {
-            db.meetings = mRes.data;
-          } else if (!mRes.error && mRes.data && mRes.data.length === 0 && db.meetings.length > 0) {
-            cloudUpsert('meetings', db.meetings);
-          }
-
-          if (tRes.data && tRes.data.length > 0) {
-            db.tasks = tRes.data;
-          } else if (!tRes.error && tRes.data && tRes.data.length === 0 && db.tasks.length > 0) {
-            cloudUpsert('tasks', db.tasks);
-          }
-
-          if (dRes.data && dRes.data.length > 0) {
-            db.deals = dRes.data;
-          } else if (!dRes.error && dRes.data && dRes.data.length === 0 && db.deals.length > 0) {
-            cloudUpsert('deals', db.deals);
-          }
+          // Activity & transaction tables: mirror Supabase exactly (if 0 in cloud, set local to 0)
+          if (!clRes.error && clRes.data) db.calls = clRes.data;
+          if (!mRes.error && mRes.data) db.meetings = mRes.data;
+          if (!tRes.error && tRes.data) db.tasks = tRes.data;
+          if (!dRes.error && dRes.data) db.deals = dRes.data;
 
           sanitizeContactOwnerTags();
           saveLocalState();
           renderAllViews();
         } else if (db.contacts.length > 0 || db.accounts.length > 0) {
-          // Cloud has 0 rows, but local browser has data -> push local data UP to cloud immediately
+          // Initial migration only: Cloud has 0 contacts AND 0 accounts -> push initial dataset to cloud
           await uploadLocalToSupabase();
         }
       } catch (err) {
@@ -3429,6 +3409,8 @@
     function deleteCallRecord(id) {
       db.calls = db.calls.filter(c => c.id !== id);
       saveLocalState();
+      renderCallsList();
+      renderHomepageMetrics();
       if (supabaseClient) supabaseClient.from('calls').delete().eq('id', id).then(r => { if (r.error) console.error("CALL DELETE FAILED", r.error); else console.log("CALL DELETE OK", r); });
     }
 
@@ -3614,6 +3596,9 @@
     function deleteDealRecord(id) {
       db.deals = db.deals.filter(d => d.id !== id);
       saveLocalState();
+      renderDealsBoard();
+      renderHomepageMetrics();
+      if (currentProfileAccountId) openAccountProfile(currentProfileAccountId);
       if (supabaseClient) supabaseClient.from('deals').delete().eq('id', id).then(r => { if (r.error) console.error("DEAL DELETE FAILED", r.error); else console.log("DEAL DELETE OK", r); });
     }
 
