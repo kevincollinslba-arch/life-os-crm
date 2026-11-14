@@ -1946,7 +1946,7 @@
     function renderHomepageMetrics() {
       const toMake = db.calls.filter(c => c.status === 'To Make').length;
       const upcomingM = db.meetings.filter(m => m.status === 'Scheduled').length;
-      const pendingT = db.tasks.filter(t => t.status === 'Pending').length;
+      const pendingT = db.tasks.filter(t => t.status === 'upcoming').length;
       const activeD = db.deals.filter(d => d.stage !== 'Closed').length;
 
       document.getElementById('stat-calls-to-make').innerText = toMake;
@@ -3120,7 +3120,7 @@
       const record = {
         id: formId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : ('task_' + Date.now())),
         title,
-        status: 'Pending',
+        status: 'upcoming',
         priority: document.getElementById('task-input-priority').value || 'Medium',
         due_date: document.getElementById('task-input-due').value || null,
         created_at: new Date().toISOString(),
@@ -3452,9 +3452,9 @@
     function toggleTaskDone(id) {
       const t = db.tasks.find(x => x.id === id);
       if (t) {
-        t.status = t.status === 'Completed' ? 'Pending' : 'Completed';
+        t.status = t.status === 'Completed' ? 'upcoming' : 'Completed';
         saveLocalState();
-        if (supabaseClient) supabaseClient.from('tasks').update({ status: t.status }).eq('id', id);
+        if (supabaseClient) supabaseClient.from('tasks').update({ status: t.status }).eq('id', id).then(r => { if (r.error) console.error("TASK UPDATE FAILED", r.error); else console.log("TASK UPDATE OK", r); });
         renderTasksList();
         renderHomepageMetrics();
       }
