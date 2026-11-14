@@ -2401,43 +2401,57 @@
         }
       }
 
-      // 2. Recent Edits (Exclusively Contacts & Business Accounts)
-      let editsHistory = [];
-      try {
-        const rawHistory = JSON.parse(localStorage.getItem('lifeos_recent_edits') || '[]');
-        // Filter strictly to contacts and accounts
-        editsHistory = rawHistory.filter(h => h.entityType === 'contact' || h.entityType === 'account');
-      } catch (e) {}
+      // 2. Recent Edits (Exclusively Contacts & Business Accounts, Cloud-Synced via updated_at)
+      const allEdits = [];
+      (db.contacts || []).forEach(c => {
+        if (c.updated_at && c.updated_at !== c.created_at) {
+          allEdits.push({
+            type: 'contact',
+            id: c.id,
+            label: `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed Contact',
+            details: c.title ? `${c.title} (Updated)` : 'Contact profile updated',
+            time: c.updated_at,
+            icon: 'fa-user-pen',
+            color: 'text-blue-400'
+          });
+        }
+      });
+      (db.accounts || []).forEach(a => {
+        if (a.updated_at && a.updated_at !== a.created_at) {
+          allEdits.push({
+            type: 'account',
+            id: a.id,
+            label: a.company_name || 'Unnamed Business',
+            details: a.location_city ? `${a.location_city} (Updated)` : 'Business Account updated',
+            time: a.updated_at,
+            icon: 'fa-building-pen',
+            color: 'text-purple-400'
+          });
+        }
+      });
 
-      if (editsBadge) editsBadge.innerText = Math.min(editsHistory.length, 50);
+      // Sort newest edit first
+      allEdits.sort((a, b) => new Date(b.time) - new Date(a.time));
+      const topEdits = allEdits.slice(0, 50);
+
+      if (editsBadge) editsBadge.innerText = topEdits.length;
       if (editsContainer) {
-        if (editsHistory.length === 0) {
+        if (topEdits.length === 0) {
           editsContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-pen-to-square text-2xl mb-1 text-slate-600"></i>No recent edits recorded yet.</div>`;
         } else {
-          editsContainer.innerHTML = editsHistory.slice(0, 50).map(item => {
-            const timeAgo = formatNoteTimestamp(item.timestamp);
-            let clickFn = '';
-            let icon = 'fa-pen';
-            let color = 'text-cyan-400';
-            if (item.entityType === 'contact') {
-              clickFn = `openContactProfile('${item.entityId}')`;
-              icon = 'fa-user-pen';
-              color = 'text-blue-400';
-            } else if (item.entityType === 'account') {
-              clickFn = `openAccountProfile('${item.entityId}')`;
-              icon = 'fa-building-pen';
-              color = 'text-purple-400';
-            }
+          editsContainer.innerHTML = topEdits.map(item => {
+            const timeAgo = formatNoteTimestamp(item.time);
+            const clickFn = item.type === 'contact' ? `openContactProfile('${item.id}')` : `openAccountProfile('${item.id}')`;
 
             return `
               <div onclick="${clickFn}" class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-slate-700 hover:bg-slate-900/60 transition cursor-pointer">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 ${color}">
-                    <i class="fa-solid ${icon} text-xs"></i>
+                  <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 ${item.color}">
+                    <i class="fa-solid ${item.icon} text-xs"></i>
                   </div>
                   <div class="min-w-0">
                     <span class="text-slate-200 font-medium block truncate">${escapeHtml(item.label)}</span>
-                    <span class="text-[11px] text-slate-400 block truncate">${escapeHtml(item.details || 'Updated')}</span>
+                    <span class="text-[11px] text-slate-400 block truncate">${escapeHtml(item.details)}</span>
                   </div>
                 </div>
                 <span class="text-[10px] text-slate-500 shrink-0 ml-2">${escapeHtml(timeAgo)}</span>
