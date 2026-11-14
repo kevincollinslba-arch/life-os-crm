@@ -1410,6 +1410,18 @@
         </div>
       </div>
 
+      <!-- Target Listings & Buyer Inquiries Section -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-building-flag text-blue-400"></i> Target Listings & Buyer Inquiries
+          </span>
+        </div>
+        <div class="space-y-2" id="cp-target-listings-list">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
       <!-- General Permanent Notes Section -->
       <div>
         <div class="flex items-center justify-between mb-1.5">
@@ -2713,6 +2725,7 @@
       
       const addr = [contact.street_address, contact.city, contact.state, contact.zip_code].filter(Boolean).join(', ');
       document.getElementById('cp-address').innerText = addr || 'None recorded';
+      renderContactTargetListings(contactId);
       renderContactNotesList(contact);
 
       // Call history & scheduled calls
@@ -3320,6 +3333,80 @@
       renderAccountBuyerLeads(account);
       renderAllViews();
       trackRecentEdit('account', account.id, account.company_name, isNda ? 'Attached signed NDA buyer lead' : 'Attached buyer inquiry');
+    }
+
+    function renderContactTargetListings(contactId) {
+      const container = document.getElementById('cp-target-listings-list');
+      if (!container) return;
+
+      const matchedListings = [];
+
+      (db.accounts || []).forEach(account => {
+        // Check Inquiries
+        const inq = parseBuyerLeadsArray(account.buyer_leads);
+        inq.forEach(item => {
+          if (item.type === 'contact' && item.contactId === contactId) {
+            matchedListings.push({
+              accountId: account.id,
+              companyName: account.company_name || 'Unnamed Business',
+              city: account.location_city || '',
+              state: account.location_state || '',
+              isNda: false,
+              timestamp: item.timestamp,
+              notes: item.notes
+            });
+          }
+        });
+
+        // Check Signed NDAs
+        const nda = parseBuyerLeadsArray(account.buyer_leads_nda);
+        nda.forEach(item => {
+          if (item.type === 'contact' && item.contactId === contactId) {
+            matchedListings.push({
+              accountId: account.id,
+              companyName: account.company_name || 'Unnamed Business',
+              city: account.location_city || '',
+              state: account.location_state || '',
+              isNda: true,
+              timestamp: item.timestamp,
+              notes: item.notes
+            });
+          }
+        });
+      });
+
+      if (matchedListings.length === 0) {
+        container.innerHTML = `<div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic">No business listings or buyer inquiries attached to this contact yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = matchedListings.map(item => {
+        const location = [item.city, item.state].filter(Boolean).join(', ');
+        const badgeHtml = item.isNda 
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"><i class="fa-solid fa-file-contract mr-1"></i> NDA Signed</span>`
+          : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"><i class="fa-solid fa-user-tag mr-1"></i> Inquiry</span>`;
+
+        return `
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs flex items-center justify-between gap-3 hover:border-slate-700 transition" style="${item.isNda ? 'border-left: 3px solid #10b981;' : 'border-left: 3px solid #3b82f6;'}">
+            <div class="space-y-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="closeModal('contact-profile-modal'); openAccountProfile('${item.accountId}')" class="font-bold text-white hover:text-blue-400 hover:underline flex items-center gap-1.5 text-left">
+                  <i class="fa-solid fa-building text-slate-400 text-xs"></i>${escapeHtml(item.companyName)}
+                </button>
+                ${badgeHtml}
+                ${item.timestamp ? `<span class="text-[10px] text-slate-500">${escapeHtml(item.timestamp)}</span>` : ''}
+              </div>
+              ${location ? `<div class="text-[11px] text-slate-400">${escapeHtml(location)}</div>` : ''}
+              ${item.notes ? `<p class="text-[11px] text-slate-300 bg-slate-900/60 p-1.5 rounded border border-slate-800/50 mt-1">${escapeHtml(item.notes)}</p>` : ''}
+            </div>
+            <div class="shrink-0">
+              <button onclick="closeModal('contact-profile-modal'); openAccountProfile('${item.accountId}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <span>View Account</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderContactNotesList(contact) {
