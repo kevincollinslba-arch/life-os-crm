@@ -2236,25 +2236,33 @@
       const addedBadge = document.getElementById('badge-recently-added-count');
       const editsBadge = document.getElementById('badge-recent-edits-count');
 
-      // 1. Most Recently Added (Combine contacts, accounts, deals, calls, meetings, tasks)
+      // 1. Most Recently Added (Exclusively Contacts & Business Accounts)
       const allAdded = [];
       (db.contacts || []).forEach(c => {
-        if (c.created_at) allAdded.push({ type: 'contact', id: c.id, label: `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed Contact', sub: c.title || 'Contact', time: c.created_at, icon: 'fa-user', color: 'text-blue-400' });
+        if (c.created_at) {
+          allAdded.push({
+            type: 'contact',
+            id: c.id,
+            label: `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Unnamed Contact',
+            sub: c.title || 'Contact',
+            time: c.created_at,
+            icon: 'fa-user',
+            color: 'text-blue-400'
+          });
+        }
       });
       (db.accounts || []).forEach(a => {
-        if (a.created_at) allAdded.push({ type: 'account', id: a.id, label: a.company_name || 'Unnamed Business', sub: a.location_city ? `${a.location_city}, ${a.location_state || ''}` : 'Business Account', time: a.created_at, icon: 'fa-building', color: 'text-purple-400' });
-      });
-      (db.deals || []).forEach(d => {
-        if (d.created_at) allAdded.push({ type: 'deal', id: d.id, label: d.title || 'Deal', sub: `$${Number(d.amount || 0).toLocaleString()} • ${d.stage || 'Deal'}`, time: d.created_at, icon: 'fa-chart-line', color: 'text-emerald-400' });
-      });
-      (db.calls || []).forEach(cl => {
-        if (cl.created_at) allAdded.push({ type: 'call', id: cl.id, label: cl.subject || 'Call Record', sub: cl.status || 'Call', time: cl.created_at, icon: 'fa-phone', color: 'text-cyan-400' });
-      });
-      (db.meetings || []).forEach(m => {
-        if (m.created_at) allAdded.push({ type: 'meeting', id: m.id, label: m.title || 'Meeting', sub: m.status || 'Meeting', time: m.created_at, icon: 'fa-calendar', color: 'text-pink-400' });
-      });
-      (db.tasks || []).forEach(t => {
-        if (t.created_at) allAdded.push({ type: 'task', id: t.id, label: t.title || 'Task', sub: t.status || 'Task', time: t.created_at, icon: 'fa-list-check', color: 'text-amber-400' });
+        if (a.created_at) {
+          allAdded.push({
+            type: 'account',
+            id: a.id,
+            label: a.company_name || 'Unnamed Business',
+            sub: a.location_city ? `${a.location_city}, ${a.location_state || ''}` : 'Business Account',
+            time: a.created_at,
+            icon: 'fa-building',
+            color: 'text-purple-400'
+          });
+        }
       });
 
       // Sort newest first
@@ -2264,17 +2272,11 @@
       if (addedBadge) addedBadge.innerText = topAdded.length;
       if (addedContainer) {
         if (topAdded.length === 0) {
-          addedContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-sparkles text-2xl mb-1 text-slate-600"></i>No recently added records yet.</div>`;
+          addedContainer.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs flex flex-col items-center"><i class="fa-solid fa-sparkles text-2xl mb-1 text-slate-600"></i>No recently added contacts or business accounts yet.</div>`;
         } else {
           addedContainer.innerHTML = topAdded.map(item => {
             const timeAgo = formatNoteTimestamp(item.time);
-            let clickFn = '';
-            if (item.type === 'contact') clickFn = `openContactProfile('${item.id}')`;
-            else if (item.type === 'account') clickFn = `openAccountProfile('${item.id}')`;
-            else if (item.type === 'deal') clickFn = `switchTab('deals')`;
-            else if (item.type === 'call') clickFn = `setCallSubTab('to-make')`;
-            else if (item.type === 'meeting') clickFn = `switchTab('homepage')`;
-            else if (item.type === 'task') clickFn = `switchTab('homepage')`;
+            const clickFn = item.type === 'contact' ? `openContactProfile('${item.id}')` : `openAccountProfile('${item.id}')`;
 
             return `
               <div onclick="${clickFn}" class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-lg flex items-center justify-between text-xs hover:border-slate-700 hover:bg-slate-900/60 transition cursor-pointer">
@@ -2294,10 +2296,12 @@
         }
       }
 
-      // 2. Recent Edits
+      // 2. Recent Edits (Exclusively Contacts & Business Accounts)
       let editsHistory = [];
       try {
-        editsHistory = JSON.parse(localStorage.getItem('lifeos_recent_edits') || '[]');
+        const rawHistory = JSON.parse(localStorage.getItem('lifeos_recent_edits') || '[]');
+        // Filter strictly to contacts and accounts
+        editsHistory = rawHistory.filter(h => h.entityType === 'contact' || h.entityType === 'account');
       } catch (e) {}
 
       if (editsBadge) editsBadge.innerText = editsHistory.length;
@@ -2318,10 +2322,6 @@
               clickFn = `openAccountProfile('${item.entityId}')`;
               icon = 'fa-building-pen';
               color = 'text-purple-400';
-            } else if (item.entityType === 'deal') {
-              clickFn = `switchTab('deals')`;
-              icon = 'fa-chart-line';
-              color = 'text-emerald-400';
             }
 
             return `
@@ -2341,6 +2341,7 @@
           }).join('');
         }
       }
+    }
     }
 
     // Contacts View
