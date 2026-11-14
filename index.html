@@ -220,20 +220,22 @@
 
         <!-- 1. CALLS HUB -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-phone text-blue-400"></i>
               <h3 class="font-bold text-base text-white">Calls Hub</h3>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
               <!-- Sub-tabs for Calls: Upcoming / Completed / Missed -->
               <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
                 <button onclick="setCallSubTab('to-make')" id="btn-call-to-make" class="px-2.5 py-1 rounded-md font-medium text-white bg-blue-600 transition">Upcoming</button>
                 <button onclick="setCallSubTab('already-made')" id="btn-call-already-made" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Completed</button>
                 <button onclick="setCallSubTab('missed')" id="btn-call-missed" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Missed</button>
               </div>
-              <button onclick="openNewCallModal()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
-                <i class="fa-solid fa-plus text-[10px]"></i> Log / Schedule Call
+              <!-- Blue Phone+ Icon Action Button -->
+              <button onclick="openNewCallModal()" title="Log / Schedule Call" class="h-7 px-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition">
+                <i class="fa-solid fa-phone text-[11px]"></i>
+                <span class="text-xs leading-none">+</span>
               </button>
             </div>
           </div>
@@ -248,20 +250,22 @@
 
         <!-- 2. MEETINGS HUB -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-calendar text-emerald-400"></i>
               <h3 class="font-bold text-base text-white">Meetings Hub</h3>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
               <!-- Sub-tabs for Meetings: Upcoming / Completed / Missed -->
               <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
                 <button onclick="setMeetingSubTab('upcoming')" id="btn-meeting-upcoming" class="px-2.5 py-1 rounded-md font-medium text-white bg-emerald-600 transition">Upcoming</button>
                 <button onclick="setMeetingSubTab('completed')" id="btn-meeting-completed" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Completed</button>
                 <button onclick="setMeetingSubTab('missed')" id="btn-meeting-missed" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-slate-200 transition">Missed</button>
               </div>
-              <button onclick="openNewMeetingModal()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-plus text-[10px]"></i> New Meeting
+              <!-- Emerald Calendar+ Icon Action Button -->
+              <button onclick="openNewMeetingModal()" title="New Meeting" class="h-7 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition">
+                <i class="fa-solid fa-calendar-days text-[11px]"></i>
+                <span class="text-xs leading-none">+</span>
               </button>
             </div>
           </div>
