@@ -4431,7 +4431,7 @@ const loginPassword = document.getElementById('login-password');
 const loginButton = document.getElementById('login-button');
 const loginError = document.getElementById('login-error');
 
-supabase.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange((event, session) => {
 if (session) {
 loginScreen.style.display = 'none';
 } else {
@@ -4441,7 +4441,7 @@ loginScreen.style.display = 'block';
 
 loginButton.addEventListener('click', async () => {
 loginError.textContent = '';
-const { error } = await supabase.auth.signInWithPassword({
+const { error } = await supabaseClient.auth.signInWithPassword({
 email: loginEmail.value,
 password: loginPassword.value,
 });
