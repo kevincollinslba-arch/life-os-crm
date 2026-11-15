@@ -4424,5 +4424,31 @@
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
   </script>
+<script>
+const loginScreen = document.getElementById('login-screen');
+const loginEmail = document.getElementById('login-email');
+const loginPassword = document.getElementById('login-password');
+const loginButton = document.getElementById('login-button');
+const loginError = document.getElementById('login-error');
+
+supabase.auth.onAuthStateChange((event, session) => {
+if (session) {
+loginScreen.style.display = 'none';
+} else {
+loginScreen.style.display = 'block';
+}
+});
+
+loginButton.addEventListener('click', async () => {
+loginError.textContent = '';
+const { error } = await supabase.auth.signInWithPassword({
+email: loginEmail.value,
+password: loginPassword.value,
+});
+if (error) {
+loginError.textContent = error.message;
+}
+});
+</script>
 </body>
 </html>
