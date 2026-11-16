@@ -1906,7 +1906,7 @@
       localStorage.setItem('supabase_url', url);
       localStorage.setItem('supabase_key', key);
       try {
-        supabaseClient = window.supabase.createClient(url, key);
+        
         updateSyncStatus(true);
         closeModal('settings-modal');
 
