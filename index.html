@@ -54,7 +54,13 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row antialiased font-sans pb-16 md:pb-0">
-
+<div id="login-screen" style="display:none; position:fixed; inset:0; background:white; z-index:9999; padding:40px; font-family:sans-serif;">
+<h2>Sign in</h2>
+<input id="login-email" type="email" placeholder="Email" style="display:block; margin:10px 0; padding:8px; width:300px;">
+<input id="login-password" type="password" placeholder="Password" style="display:block; margin:10px 0; padding:8px; width:300px;">
+<button id="login-button" style="padding:10px 20px;">Log in</button>
+<p id="login-error" style="color:red;"></p>
+</div>
   <!-- ==================== DESKTOP SIDEBAR ==================== -->
   <aside class="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-4 shrink-0 h-screen sticky top-0 justify-between">
     <div>
