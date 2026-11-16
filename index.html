@@ -54,13 +54,7 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row antialiased font-sans pb-16 md:pb-0">
-<div id="login-screen" style="display:none; position:fixed; inset:0; background:white; z-index:9999; padding:40px; font-family:sans-serif;">
-<h2>Sign in</h2>
-<input id="login-email" type="email" placeholder="Email" style="display:block; margin:10px 0; padding:8px; width:300px;">
-<input id="login-password" type="password" placeholder="Password" style="display:block; margin:10px 0; padding:8px; width:300px;">
-<button id="login-button" style="padding:10px 20px;">Log in</button>
-<p id="login-error" style="color:red;"></p>
-</div>
+
   <!-- ==================== DESKTOP SIDEBAR ==================== -->
   <aside class="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-4 shrink-0 h-screen sticky top-0 justify-between">
     <div>
@@ -417,13 +411,14 @@
                 <th class="p-3.5">Name / Title</th>
                 <th class="p-3.5">Company Affiliation</th>
                 <th class="p-3.5">Phone (Cell / Other)</th>
+                <th class="p-3.5">Last Activity</th>
                 <th class="p-3.5">Role Tags</th>
                 <th class="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="contacts-table-body" class="divide-y divide-slate-800/60 font-normal">
               <tr>
-                <td colspan="5" class="text-center py-12 text-slate-500">
+                <td colspan="6" class="text-center py-12 text-slate-500">
                   <i class="fa-solid fa-user-group text-2xl mb-2 text-slate-600 block"></i>
                   No contacts found. Add your first contact or import from Salesgenie!
                 </td>
@@ -1687,11 +1682,17 @@
           <label class="block font-semibold text-slate-300 mb-1">Buyer Notes / Financial Criteria</label>
           <input type="text" id="buyer-lead-notes" placeholder="e.g. Budget $1.2M cash, requested CIM, toured shop on 11/12" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" />
         </div>
-        <div class="flex items-center gap-2 pt-1">
-          <input type="checkbox" id="buyer-lead-is-nda" class="rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer" />
-          <label for="buyer-lead-is-nda" class="font-semibold text-slate-200 cursor-pointer flex items-center gap-1.5">
-            <i class="fa-solid fa-file-signature text-emerald-400"></i> Mark as Signed NDA Lead
-          </label>
+        <div class="space-y-3 pt-1">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="buyer-lead-is-nda" onchange="toggleNdaDateField(this.checked)" class="rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-0 w-4 h-4 cursor-pointer" />
+            <label for="buyer-lead-is-nda" class="font-semibold text-slate-200 cursor-pointer flex items-center gap-1.5">
+              <i class="fa-solid fa-file-signature text-emerald-400"></i> Mark as Signed NDA Lead
+            </label>
+          </div>
+          <div id="buyer-nda-date-wrapper" class="hidden">
+            <label class="block font-semibold text-emerald-400 mb-1">NDA Signed Date</label>
+            <input type="date" id="buyer-lead-nda-date" class="w-full bg-slate-950 border border-emerald-500/40 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium" />
+          </div>
         </div>
       </div>
 
@@ -1830,7 +1831,7 @@
 
     // Hardcoded Default Supabase Cloud Credentials for Zero-Config Multi-Device Sync
     const DEFAULT_SUPABASE_URL = 'https://jemaahlxncvbypvrfnyn.supabase.co';
-    const DEFAULT_SUPABASE_KEY = 'sb_publishable_XSdUh5kEHKyZqnjCUKoz6Q_lP56Fn0d';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplbWFhaGx4bmN2YnlwdnJmbnluIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzUwMjIwNSwiZXhwIjoyMTA5MDc4MjA1fQ.a25vXk1quFPMruzixYuBYPVYF6ai_ohVFnUblBpDL3M';
 
     function loadStoredConfig() {
       const savedUrl = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
@@ -1868,7 +1869,7 @@
       localStorage.setItem('supabase_url', url);
       localStorage.setItem('supabase_key', key);
       try {
-        
+        supabaseClient = window.supabase.createClient(url, key);
         updateSyncStatus(true);
         closeModal('settings-modal');
 
@@ -2579,7 +2580,7 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500">No matching contacts found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-500">No matching contacts found.</td></tr>`;
         return;
       }
 
@@ -2587,6 +2588,32 @@
         const account = db.accounts.find(a => a.id === c.business_account_id);
         const tags = Array.isArray(c.tags) ? c.tags : (c.tags ? [c.tags] : []);
         const tagsHtml = tags.map(t => `<span class="badge-tag bg-blue-500/10 text-blue-400 border border-blue-500/20 mr-1">${escapeHtml(t)}</span>`).join('');
+
+        // Calculate Last Activity
+        let latestTime = c.updated_at || c.created_at || '';
+        let actLabel = c.updated_at && c.updated_at !== c.created_at ? 'Edited' : 'Added';
+
+        // Check calls
+        const contactCalls = (db.calls || []).filter(cl => cl.contact_id === c.id);
+        contactCalls.forEach(cl => {
+          const t = cl.scheduled_at || cl.created_at || '';
+          if (t && (!latestTime || new Date(t) > new Date(latestTime))) {
+            latestTime = t;
+            actLabel = 'Call';
+          }
+        });
+
+        // Check meetings
+        const contactMeetings = (db.meetings || []).filter(m => m.contact_id === c.id);
+        contactMeetings.forEach(m => {
+          const t = m.meeting_time || m.created_at || '';
+          if (t && (!latestTime || new Date(t) > new Date(latestTime))) {
+            latestTime = t;
+            actLabel = 'Meeting';
+          }
+        });
+
+        const actFormatted = latestTime ? `${actLabel}: ${formatNoteTimestamp(latestTime)}` : 'None';
 
         return `
           <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="openContactProfile('${c.id}', event)">
@@ -2602,6 +2629,9 @@
             <td class="p-3.5 space-y-0.5" onclick="event.stopPropagation()">
               ${c.cell_phone ? `<div class="text-[11px]"><button onclick="openQuickNoteModal('${c.cell_phone}', '${c.id}', '${c.business_account_id || ''}')" class="text-blue-400 hover:underline flex items-center gap-1"><i class="fa-solid fa-mobile-screen mr-1"></i>${escapeHtml(c.cell_phone)}</button></div>` : ''}
               ${c.other_phone ? `<div class="text-[11px] text-slate-400"><button onclick="openQuickNoteModal('${c.other_phone}', '${c.id}', '${c.business_account_id || ''}')" class="hover:underline flex items-center gap-1"><i class="fa-solid fa-phone mr-1"></i>${escapeHtml(c.other_phone)}</button></div>` : ''}
+            </td>
+            <td class="p-3.5">
+              <span class="text-[11px] text-slate-400 flex items-center gap-1"><i class="fa-solid fa-clock-rotate-left text-[10px] text-slate-500"></i>${escapeHtml(actFormatted)}</span>
             </td>
             <td class="p-3.5">
               <div class="flex flex-wrap gap-1">${tagsHtml || '<span class="text-slate-500 text-[11px]">No tags</span>'}</div>
@@ -3116,6 +3146,21 @@
       }
     }
 
+    function toggleNdaDateField(isNda) {
+      const wrapper = document.getElementById('buyer-nda-date-wrapper');
+      const dateInput = document.getElementById('buyer-lead-nda-date');
+      if (wrapper) {
+        if (isNda) {
+          wrapper.classList.remove('hidden');
+          if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().slice(0, 10);
+          }
+        } else {
+          wrapper.classList.add('hidden');
+        }
+      }
+    }
+
     function openAddBuyerModal(isNda) {
       if (!currentProfileAccountId) return;
       currentBuyerModalIsNda = !!isNda;
@@ -3124,6 +3169,10 @@
       document.getElementById('buyer-modal-account-id').value = currentProfileAccountId;
       document.getElementById('add-buyer-modal-title').innerText = isNda ? 'Attach Signed NDA Buyer Lead' : 'Attach Buyer Lead (Inquiry)';
       document.getElementById('buyer-lead-is-nda').checked = !!isNda;
+      toggleNdaDateField(!!isNda);
+      const dateInput = document.getElementById('buyer-lead-nda-date');
+      if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+
       document.getElementById('buyer-lead-notes').value = '';
       document.getElementById('buyer-new-first-name').value = '';
       document.getElementById('buyer-new-last-name').value = '';
@@ -3311,7 +3360,8 @@
 
       if (index >= 0 && index < inq.length) {
         const item = inq.splice(index, 1)[0];
-        item.timestamp = 'NDA: ' + formatNoteTimestamp(new Date());
+        const dateStr = prompt('Enter NDA Signed Date (YYYY-MM-DD):', new Date().toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10);
+        item.timestamp = `Signed: ${dateStr}`;
         nda.unshift(item);
 
         account.buyer_leads = stringifyBuyerLeadsArray(inq);
@@ -3361,6 +3411,7 @@
       if (!account) { alert('No account selected.'); return; }
 
       const isNda = document.getElementById('buyer-lead-is-nda').checked;
+      const ndaDateVal = document.getElementById('buyer-lead-nda-date')?.value || new Date().toISOString().slice(0, 10);
       const notes = document.getElementById('buyer-lead-notes').value.trim();
       const ts = formatNoteTimestamp(new Date());
 
@@ -3373,7 +3424,7 @@
         newLead = {
           type: 'contact',
           contactId,
-          timestamp: isNda ? `NDA: ${ts}` : `Added: ${ts}`,
+          timestamp: isNda ? `Signed: ${ndaDateVal}` : `Added: ${ts}`,
           notes
         };
 
@@ -3422,7 +3473,7 @@
         newLead = {
           type: 'contact',
           contactId: newContact.id,
-          timestamp: isNda ? `NDA: ${ts}` : `Added: ${ts}`,
+          timestamp: isNda ? `Signed: ${ndaDateVal}` : `Added: ${ts}`,
           notes
         };
       }
@@ -4423,34 +4474,6 @@
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
-      </script>
-<script>
-  window.addEventListener('load', function () {
-const loginScreen = document.getElementById('login-screen');
-const loginEmail = document.getElementById('login-email');
-const loginPassword = document.getElementById('login-password');
-const loginButton = document.getElementById('login-button');
-const loginError = document.getElementById('login-error');
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-if (session) {
-loginScreen.style.display = 'none';
-} else {
-loginScreen.style.display = 'block';
-}
-});
-
-loginButton.addEventListener('click', async () => {
-loginError.textContent = '';
-const { error } = await supabaseClient.auth.signInWithPassword({
-email: loginEmail.value,
-password: loginPassword.value,
-});
-if (error) {
-loginError.textContent = error.message;
-}
-});
-  });
-</script>
+  </script>
 </body>
 </html>
