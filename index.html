@@ -2266,7 +2266,7 @@
         const accountName = account ? account.company_name : '';
 
         return `
-          <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between hover:border-slate-700 transition">
+          <div data-contact="${m.contact_id || ''}" onclick="if(this.dataset.contact) openContactProfile(this.dataset.contact, event)" class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between hover:border-slate-700 transition ${m.contact_id ? 'cursor-pointer hover:bg-slate-900' : ''}">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="font-semibold text-xs text-white">${escapeHtml(m.title)}</span>
