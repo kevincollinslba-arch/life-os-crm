@@ -468,11 +468,31 @@
             <option value="Other Listing - Active">Other Listing - Active</option>
             <option value="Not Listed / Off-Market">Not Listed / Off-Market</option>
           </select>
-          <select id="account-property-filter" onchange="renderAccountsList()" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-            <option value="ALL">All Property Statuses</option>
-            <option value="Leased">Leased</option>
-            <option value="Owned">Owned</option>
-            <option value="Unknown">Unknown</option>
+          <select id="account-tag-filter" onchange="renderAccountsList()" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+            <option value="ALL">All Account Tags</option>
+            <!-- Automotive -->
+            <option value="Auto Repair Shop">Auto Repair Shop</option>
+            <option value="Auto Body Shop">Auto Body Shop</option>
+            <option value="Tire Shop">Tire Shop</option>
+            <option value="Auto Dealership">Auto Dealership</option>
+            <option value="Car Wash / Detailing">Car Wash / Detailing</option>
+            <option value="Smog / Inspection">Smog / Inspection</option>
+            <option value="Towing Service">Towing Service</option>
+            <!-- Retail & Food -->
+            <option value="Convenience Store">Convenience Store</option>
+            <option value="Liquor Store">Liquor Store</option>
+            <option value="Gas Station w/C-Store">Gas Station w/C-Store</option>
+            <option value="Grocery / Supermarket">Grocery / Supermarket</option>
+            <option value="Smoke / Vape Shop">Smoke / Vape Shop</option>
+            <option value="Restaurant / Food Service">Restaurant / Food Service</option>
+            <option value="Bar / Lounge">Bar / Lounge</option>
+            <!-- Commercial / Industrial -->
+            <option value="Distribution Company">Distribution Company</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Laundromat">Laundromat</option>
+            <option value="Dry Cleaners">Dry Cleaners</option>
+            <option value="Trade / Contractor">Trade / Contractor</option>
+            <option value="Commercial Service">Commercial Service</option>
           </select>
         </div>
       </div>
@@ -486,7 +506,7 @@
                 <th class="p-3.5">Company Name / City</th>
                 <th class="p-3.5">Phone</th>
                 <th class="p-3.5">Revenue / Employees</th>
-                <th class="p-3.5">Property Status</th>
+                <th class="p-3.5">Account Tags</th>
                 <th class="p-3.5">Listing Tags</th>
                 <th class="p-3.5">Primary Contact</th>
                 <th class="p-3.5 text-right">Actions</th>
@@ -1188,6 +1208,121 @@
           </div>
         </div>
 
+        <!-- Business Account Tags (Industry / Category) -->
+        <div>
+          <label class="block font-semibold text-slate-300 mb-2"><i class="fa-solid fa-tags text-blue-400 mr-1"></i> Industry & Account Tags (Check all that apply)</label>
+          <div class="space-y-3 p-3.5 bg-slate-950 border border-slate-800 rounded-xl">
+            
+            <!-- Category 1: Automotive -->
+            <div>
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-car text-amber-400"></i> Automotive & Repair
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Auto Repair Shop" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Auto Repair Shop</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Auto Body Shop" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Auto Body Shop</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Tire Shop" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Tire Shop</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Auto Dealership" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Auto Dealership</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Car Wash / Detailing" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Car Wash / Detailing</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Smog / Inspection" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Smog / Inspection</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Towing Service" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Towing Service</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Category 2: Retail, Convenience & Food -->
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-store text-emerald-400"></i> Retail, Convenience & Food
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Convenience Store" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Convenience Store</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Liquor Store" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Liquor Store</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Gas Station w/C-Store" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Gas Station w/C-Store</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Grocery / Supermarket" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Grocery / Supermarket</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Smoke / Vape Shop" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Smoke / Vape Shop</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Restaurant / Food Service" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Restaurant / Food</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Bar / Lounge" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Bar / Lounge</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Category 3: Industrial, Distribution & Commercial Services -->
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-boxes-stacked text-cyan-400"></i> Distribution, Manufacturing & Services
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Distribution Company" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Distribution Company</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Manufacturing" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Manufacturing</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Laundromat" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Laundromat</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Dry Cleaners" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Dry Cleaners</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Trade / Contractor" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Trade / Contractor</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+                  <input type="checkbox" name="account-tag" value="Commercial Service" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0" />
+                  <span>Commercial Service</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Company Description / Notes</label>
           <textarea id="account-description" rows="2" placeholder="Auto repair specialty, lease expiration, owner retirement plans..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500"></textarea>
@@ -1501,6 +1636,7 @@
               <span id="ap-property-badge" class="badge-tag bg-purple-500/10 text-purple-400 border border-purple-500/20">Leased</span>
             </div>
             <div class="text-xs text-slate-400 mt-0.5" id="ap-location">Burbank, CA</div>
+            <div class="flex flex-wrap gap-1.5 mt-2" id="ap-tags-container"></div>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -2728,17 +2864,20 @@ Mark Done
       const tbody = document.getElementById('accounts-table-body');
       const search = (document.getElementById('account-search-input').value || '').toLowerCase();
       const listingFilter = document.getElementById('account-listing-filter') ? document.getElementById('account-listing-filter').value : 'ALL';
-      const propFilter = document.getElementById('account-property-filter').value;
+      const tagFilter = document.getElementById('account-tag-filter') ? document.getElementById('account-tag-filter').value : 'ALL';
 
       let filtered = db.accounts.filter(a => {
         const name = (a.company_name || '').toLowerCase();
         const city = (a.location_city || '').toLowerCase();
         const phone = (a.phone_combined || '').toLowerCase();
         const matchesSearch = name.includes(search) || city.includes(search) || phone.includes(search);
-        const matchesProp = (propFilter === 'ALL') || (a.property_status === propFilter);
+        
+        const tags = Array.isArray(a.tags) ? a.tags : (a.tags ? [a.tags] : []);
+        const matchesTag = (tagFilter === 'ALL') || tags.includes(tagFilter);
+        
         const accListing = a.listing_status || 'Not Listed / Off-Market';
         const matchesListing = (listingFilter === 'ALL') || (accListing === listingFilter);
-        return matchesSearch && matchesProp && matchesListing;
+        return matchesSearch && matchesTag && matchesListing;
       });
 
       if (filtered.length === 0) {
@@ -2750,6 +2889,8 @@ Mark Done
         const primaryOwner = db.contacts.find(c => c.business_account_id === a.id);
         const ownerName = primaryOwner ? `${primaryOwner.first_name} ${primaryOwner.last_name}` : 'Not Assigned';
         const listingBadge = getListingStatusBadge(a.listing_status);
+        const tags = Array.isArray(a.tags) ? a.tags : (a.tags ? [a.tags] : []);
+        const tagsHtml = tags.map(t => `<span class="badge-tag bg-blue-500/10 text-blue-400 border border-blue-500/20 mr-1 mb-1">${escapeHtml(t)}</span>`).join('');
 
         return `
           <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="openAccountProfile('${a.id}', event)">
@@ -2767,9 +2908,7 @@ Mark Done
               <div class="text-[11px] text-slate-400">${escapeHtml(a.employee_count || '1')} Employees</div>
             </td>
             <td class="p-3.5">
-              <span class="badge-tag ${a.property_status === 'Owned' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-300'}">
-                ${escapeHtml(a.property_status || 'Leased')}
-              </span>
+              <div class="flex flex-wrap gap-1">${tagsHtml || '<span class="text-slate-500 text-[11px]">No tags</span>'}</div>
             </td>
             <td class="p-3.5">
               ${listingBadge || '<span class="text-slate-600 italic text-[11px]">Off-Market</span>'}
@@ -3044,8 +3183,20 @@ Mark Done
       }
 
       const pBadge = document.getElementById('ap-property-badge');
-      pBadge.innerText = account.property_status || 'Leased';
-      pBadge.className = `badge-tag ${account.property_status === 'Owned' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-300'}`;
+      if (pBadge) {
+        pBadge.innerText = account.property_status || 'Leased';
+        pBadge.className = `badge-tag ${account.property_status === 'Owned' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-300'}`;
+      }
+
+      const tags = Array.isArray(account.tags) ? account.tags : (account.tags ? [account.tags] : []);
+      const tagsContainer = document.getElementById('ap-tags-container');
+      if (tagsContainer) {
+        if (tags.length === 0) {
+          tagsContainer.innerHTML = '<span class="text-slate-500 text-xs italic">No industry tags assigned</span>';
+        } else {
+          tagsContainer.innerHTML = tags.map(t => `<span class="badge-tag bg-blue-500/10 text-blue-400 border border-blue-500/20">${escapeHtml(t)}</span>`).join('');
+        }
+      }
 
       // Quick Actions
       let actionsHtml = '';
@@ -3884,6 +4035,7 @@ Mark Done
       document.getElementById('account-description').value = '';
       document.getElementById('account-buyer-leads').value = '';
       document.getElementById('account-buyer-leads-nda').value = '';
+      document.querySelectorAll('input[name="account-tag"]').forEach(cb => { cb.checked = false; });
       openModal('account-modal');
     }
     function openDealModal(accountId, contactId, defaultTitle) {
@@ -4313,6 +4465,11 @@ Mark Done
       document.getElementById('account-buyer-leads').value = a.buyer_leads || '';
       document.getElementById('account-buyer-leads-nda').value = a.buyer_leads_nda || '';
 
+      const tags = Array.isArray(a.tags) ? a.tags : (a.tags ? [a.tags] : []);
+      document.querySelectorAll('input[name="account-tag"]').forEach(cb => {
+        cb.checked = tags.includes(cb.value);
+      });
+
       openModal('account-modal');
     }
 
@@ -4373,6 +4530,8 @@ Mark Done
       const name = document.getElementById('account-name').value.trim();
       if (!name) { alert('Company Name is required.'); return; }
 
+      const selectedTags = Array.from(document.querySelectorAll('input[name="account-tag"]:checked')).map(el => el.value);
+
       const record = {
         id: document.getElementById('account-form-id').value || crypto.randomUUID(),
         company_name: name,
@@ -4388,6 +4547,7 @@ Mark Done
         location_city: document.getElementById('account-city').value.trim(),
         location_state: document.getElementById('account-state').value.trim(),
         location_zip: document.getElementById('account-zip').value.trim(),
+        tags: selectedTags,
         description: document.getElementById('account-description').value.trim(),
         buyer_leads: document.getElementById('account-buyer-leads').value.trim(),
         buyer_leads_nda: document.getElementById('account-buyer-leads-nda').value.trim()
