@@ -1585,6 +1585,19 @@
         </div>
       </div>
 
+      <!-- Contact Documents Section -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-file-pdf text-rose-400"></i> Contact Documents
+          </span>
+          <button onclick="openContactDocumentUpload()" class="text-xs text-rose-400 hover:underline font-medium">+ Add PDF</button>
+        </div>
+        <div class="space-y-2" id="cp-documents-list">
+          <div class="text-slate-500 text-xs italic py-1.5">No contact documents uploaded yet.</div>
+        </div>
+      </div>
+
       <!-- 1. Calls Section -->
       <div>
         <div class="flex items-center justify-between mb-2">
@@ -1882,6 +1895,37 @@
     </div>
   </div>
 
+  <!-- ==================== CONTACT DOCUMENT UPLOAD MODAL ==================== -->
+  <div id="contact-document-modal" class="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-rose-400"></i> Add Contact PDF
+        </h3>
+        <button onclick="closeModal('contact-document-modal')" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">PDF File *</label>
+          <input type="file" id="contact-document-file" accept="application/pdf,.pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-rose-600 file:text-white" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Document Category *</label>
+          <select id="contact-document-category" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-rose-500">
+            <option value="Representation Agreement">Representation Agreement</option>
+            <option value="Offers">Offers</option>
+            <option value="Accepted Offer">Accepted Offer</option>
+            <option value="Escrow">Escrow</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
+        <button onclick="closeModal('contact-document-modal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+        <button onclick="uploadContactDocument()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold">Upload PDF</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== NOTE ENTRY MODAL ==================== -->
   <div id="note-modal" class="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1896,6 +1940,7 @@
       <div class="space-y-3 text-xs">
         <input type="hidden" id="note-target-type" value="" />
         <input type="hidden" id="note-target-id" value="" />
+        <input type="hidden" id="note-edit-index" value="" />
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Note Content *</label>
           <textarea id="note-input-text" rows="4" placeholder="Type your note here..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500" required></textarea>
@@ -1924,7 +1969,8 @@
       meetings: [],
       tasks: [],
       deals: [],
-      ndas: []
+      ndas: [],
+      contactDocuments: []
     };
 
     let supabaseClient = null;
@@ -2124,16 +2170,17 @@
     async function fetchCloudData() {
       if (!supabaseClient) return;
       try {
-        const [cRes, aRes, clRes, mRes, tRes, dRes] = await Promise.all([
+        const [cRes, aRes, clRes, mRes, tRes, dRes, docRes] = await Promise.all([
           fetchAllTableRows('contacts'),
           fetchAllTableRows('business_accounts'),
           fetchAllTableRows('calls'),
           fetchAllTableRows('meetings'),
           fetchAllTableRows('tasks'),
-          fetchAllTableRows('deals')
+          fetchAllTableRows('deals'),
+          fetchAllTableRows('contact_documents')
         ]);
 
-        [['contacts', cRes], ['business_accounts', aRes], ['calls', clRes], ['meetings', mRes], ['tasks', tRes], ['deals', dRes]].forEach(([name, r]) => {
+        [['contacts', cRes], ['business_accounts', aRes], ['calls', clRes], ['meetings', mRes], ['tasks', tRes], ['deals', dRes], ['contact_documents', docRes]].forEach(([name, r]) => {
           if (r.error) showCloudError(name + ' (reading)', r.error);
         });
 
@@ -2149,9 +2196,10 @@
           if (!clRes.error && clRes.data) db.calls = clRes.data;
           if (!mRes.error && mRes.data) db.meetings = mRes.data;
           if (!tRes.error && tRes.data) db.tasks = tRes.data;
-          if (!dRes.error && dRes.data) db.deals = dRes.data;
+           if (!dRes.error && dRes.data) db.deals = dRes.data;
+           if (!docRes.error && docRes.data) db.contactDocuments = docRes.data;
 
-          sanitizeContactOwnerTags();
+           sanitizeContactOwnerTags();
           saveLocalState();
           renderAllViews();
         } else if (db.contacts.length > 0 || db.accounts.length > 0) {
@@ -3058,6 +3106,7 @@ Mark Done
       document.getElementById('cp-address').innerText = addr || 'None recorded';
       renderContactTargetListings(contactId);
       renderContactNotesList(contact);
+      renderContactDocumentsList(contactId);
 
       // Call history & scheduled calls
       const calls = db.calls.filter(c => c.contact_id === contactId);
@@ -3875,11 +3924,16 @@ Mark Done
         container.innerHTML = '<div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-500 italic">No notes added yet. Click "+ Add Note" to add one.</div>';
         return;
       }
-      container.innerHTML = entries.map(e => `
+      container.innerHTML = entries.map((e, index) => `
         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs space-y-1">
-          <div class="flex items-center gap-1.5 text-[11px] font-semibold text-amber-400">
-            <i class="fa-solid fa-clock text-[10px]"></i>
-            <span>${escapeHtml(e.timestamp)}</span>
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 text-[11px] font-semibold text-amber-400">
+              <i class="fa-solid fa-clock text-[10px]"></i>
+              <span>${escapeHtml(e.timestamp)}</span>
+            </div>
+            <button onclick="editContactNote(${index})" title="Edit Note" class="p-1 text-slate-400 hover:text-blue-400">
+              <i class="fa-solid fa-pen"></i>
+            </button>
           </div>
           <p class="text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(e.text)}</p>
         </div>
@@ -3905,12 +3959,102 @@ Mark Done
       `).join('');
     }
 
+    function renderContactDocumentsList(contactId) {
+      const container = document.getElementById('cp-documents-list');
+      if (!container) return;
+      const documents = Array.isArray(db.contactDocuments) ? db.contactDocuments.filter(d => d.contact_id === contactId) : [];
+      if (documents.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-xs italic py-1.5">No contact documents uploaded yet.</div>';
+        return;
+      }
+      container.innerHTML = documents.map(doc => `
+        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 text-xs flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-medium text-slate-200 truncate"><i class="fa-solid fa-file-pdf text-rose-400 mr-1"></i>${escapeHtml(doc.file_name)}</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">${escapeHtml(doc.category)} &bull; ${doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : ''}</div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="openContactDocument('${doc.id}')" title="Open PDF" class="p-1.5 text-slate-400 hover:text-blue-400"><i class="fa-solid fa-eye"></i></button>
+            <button onclick="deleteContactDocument('${doc.id}')" title="Delete PDF" class="p-1.5 text-slate-400 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openContactDocumentUpload() {
+      if (!currentProfileContactId) return;
+      const input = document.getElementById('contact-document-file');
+      if (input) input.value = '';
+      document.getElementById('contact-document-category').value = 'Representation Agreement';
+      openModal('contact-document-modal');
+    }
+
+    async function loadContactDocuments() {
+      if (!supabaseClient) return;
+      const { data, error } = await supabaseClient.from('contact_documents').select('*').order('uploaded_at', { ascending: false });
+      if (error) { console.error('CONTACT DOCUMENTS READ FAILED', error); return; }
+      db.contactDocuments = data || [];
+      if (currentProfileContactId) renderContactDocumentsList(currentProfileContactId);
+    }
+
+    async function uploadContactDocument() {
+      if (!supabaseClient) { alert('Cloud connection is not available.'); return; }
+      if (!currentProfileContactId) return;
+      const file = document.getElementById('contact-document-file').files[0];
+      const category = document.getElementById('contact-document-category').value;
+      if (!file) { alert('Please choose a PDF file.'); return; }
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { alert('Only PDF files are allowed.'); return; }
+      const path = `${currentProfileContactId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const { error: uploadError } = await supabaseClient.storage.from('contact-documents').upload(path, file, { contentType: 'application/pdf', upsert: false });
+      if (uploadError) { console.error('CONTACT PDF UPLOAD FAILED', uploadError); alert('PDF upload failed. Check the Supabase storage policies.'); return; }
+      const { data, error } = await supabaseClient.from('contact_documents').insert({ contact_id: currentProfileContactId, file_name: file.name, storage_path: path, category }).select().single();
+      if (error) { console.error('CONTACT DOCUMENT RECORD FAILED', error); await supabaseClient.storage.from('contact-documents').remove([path]); alert('The PDF uploaded but its record could not be saved.'); return; }
+      db.contactDocuments = [data, ...(db.contactDocuments || [])];
+      closeModal('contact-document-modal');
+      renderContactDocumentsList(currentProfileContactId);
+    }
+
+    async function openContactDocument(id) {
+      const doc = (db.contactDocuments || []).find(d => d.id === id);
+      if (!doc || !supabaseClient) return;
+      const { data, error } = await supabaseClient.storage.from('contact-documents').createSignedUrl(doc.storage_path, 300);
+      if (error) { console.error('CONTACT PDF OPEN FAILED', error); alert('Could not open the PDF.'); return; }
+      window.open(data.signedUrl, '_blank', 'noopener');
+    }
+
+    async function deleteContactDocument(id) {
+      const doc = (db.contactDocuments || []).find(d => d.id === id);
+      if (!doc || !supabaseClient || !confirm('Delete this contact PDF?')) return;
+      const { error: storageError } = await supabaseClient.storage.from('contact-documents').remove([doc.storage_path]);
+      if (storageError) { console.error('CONTACT PDF DELETE FAILED', storageError); alert('Could not delete the PDF.'); return; }
+      const { error } = await supabaseClient.from('contact_documents').delete().eq('id', id);
+      if (error) { console.error('CONTACT DOCUMENT RECORD DELETE FAILED', error); alert('The PDF was removed, but its record could not be deleted.'); return; }
+      db.contactDocuments = (db.contactDocuments || []).filter(d => d.id !== id);
+      renderContactDocumentsList(currentProfileContactId);
+    }
+
     function addNoteToContactProfile() {
       if (!currentProfileContactId) return;
       document.getElementById('note-target-type').value = 'contact';
       document.getElementById('note-target-id').value = currentProfileContactId;
+      document.getElementById('note-edit-index').value = '';
       document.getElementById('note-modal-title').innerText = 'Add Note to Contact';
       document.getElementById('note-input-text').value = '';
+      openModal('note-modal');
+    }
+
+    function editContactNote(index) {
+      if (!currentProfileContactId) return;
+      const contact = db.contacts.find(x => x.id === currentProfileContactId);
+      if (!contact) return;
+      const entries = parseNotesArray(contact.notes);
+      const entry = entries[index];
+      if (!entry) return;
+      document.getElementById('note-target-type').value = 'contact';
+      document.getElementById('note-target-id').value = currentProfileContactId;
+      document.getElementById('note-edit-index').value = String(index);
+      document.getElementById('note-modal-title').innerText = 'Edit Contact Note';
+      document.getElementById('note-input-text').value = entry.text;
       openModal('note-modal');
     }
 
@@ -3918,6 +4062,7 @@ Mark Done
       if (!currentProfileAccountId) return;
       document.getElementById('note-target-type').value = 'account';
       document.getElementById('note-target-id').value = currentProfileAccountId;
+      document.getElementById('note-edit-index').value = '';
       document.getElementById('note-modal-title').innerText = 'Add Note to Business Account';
       document.getElementById('note-input-text').value = '';
       openModal('note-modal');
@@ -3929,18 +4074,27 @@ Mark Done
       const text = document.getElementById('note-input-text').value.trim();
       if (!text) { alert('Please enter note content.'); return; }
 
+      const editIndex = document.getElementById('note-edit-index').value;
       const ts = formatNoteTimestamp(new Date());
-      const formattedNote = `[${ts}]\n${text}`;
+      const formattedNote = `[${ts}]\\n${text}`;
 
       if (type === 'contact') {
         const c = db.contacts.find(x => x.id === targetId);
         if (!c) return;
-        c.notes = c.notes ? `${c.notes.trim()}\n\n${formattedNote}` : formattedNote;
+        if (editIndex !== '') {
+          const entries = parseNotesArray(c.notes);
+          const index = Number(editIndex);
+          if (!entries[index]) return;
+          entries[index].text = text;
+          c.notes = entries.map(entry => `[${entry.timestamp}]\\n${entry.text}`).join('\\n\\n');
+        } else {
+          c.notes = c.notes ? `${c.notes.trim()}\\n\\n${formattedNote}` : formattedNote;
+        }
         c.updated_at = new Date().toISOString();
         saveLocalState();
         if (supabaseClient) await cloudUpsert('contacts', [c]);
         renderContactNotesList(c);
-        trackRecentEdit('contact', c.id, `${c.first_name} ${c.last_name}`.trim(), 'Added timestamped note');
+        trackRecentEdit('contact', c.id, `${c.first_name} ${c.last_name}`.trim(), editIndex !== '' ? 'Edited contact note' : 'Added timestamped note');
       } else if (type === 'account') {
         const a = db.accounts.find(x => x.id === targetId);
         if (!a) return;
