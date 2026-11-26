@@ -3345,7 +3345,8 @@ Mark Done
     // Handles both new format "[Nov 9, 2026, 6:50 PM] note text" and legacy plain text notes
     function parseNotesArray(notesStr) {
       if (!notesStr || !notesStr.trim()) return [];
-      const raw = notesStr.trim();
+      // Normalize escaped line breaks from the earlier edit implementation before parsing.
+      const raw = notesStr.replace(/\\n/g, '\n').trim();
       const pattern = /(?:^|\n\n|\n)\[([^\]]+)\]\s*/g;
       let match;
       const entries = [];
@@ -4086,7 +4087,7 @@ Mark Done
           const index = Number(editIndex);
           if (!entries[index]) return;
           entries[index].text = text;
-          c.notes = entries.map(entry => `[${entry.timestamp}]\\n${entry.text}`).join('\\n\\n');
+          c.notes = entries.map(entry => `[${entry.timestamp}]\n${entry.text}`).join('\n\n');
         } else {
           c.notes = c.notes ? `${c.notes.trim()}\\n\\n${formattedNote}` : formattedNote;
         }
